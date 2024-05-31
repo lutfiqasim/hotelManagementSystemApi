@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
+import java.util.stream.Collectors;
 
 @Component
 public class JWTGenerator {
@@ -18,9 +19,12 @@ public class JWTGenerator {
         String email = authentication.getName();
         Date currentDate = new Date();
         Date expireDate = new Date(currentDate.getTime() + SecurityConstants.JWT_EXPIRATION);
+        //TODO: understand how it get the actual role :)
+        String role = authentication.getAuthorities().stream().map(r -> r.getAuthority()).collect(Collectors.toSet()).iterator().next();
         String token = Jwts.builder()
                 .subject(email).issuedAt(new Date())
                 .expiration(expireDate)
+                .claim("role", role)
                 .signWith(SecurityConstants.JWT_SECRET)
                 .compact();
         return token;
