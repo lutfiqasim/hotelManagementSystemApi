@@ -3,6 +3,7 @@ package bzu.edu.hotelManagmentAPI.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -43,6 +44,16 @@ public class ControllerAdvisor {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<ErrorResponse> UsernameNotFoundExceptionHandler(Exception e) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.UNAUTHORIZED.getReasonPhrase(),
+                e.getMessage()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+    }
+
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupportedException(Exception e) {
         ErrorResponse errorResponse = new ErrorResponse(
@@ -69,7 +80,7 @@ public class ControllerAdvisor {
         ErrorResponse errorResponse = new ErrorResponse(
                 LocalDateTime.now(),
                 e.getMessage(),
-                "Internal Server Error"
+                "Internal Server Error" + e.toString()
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }

@@ -1,5 +1,6 @@
 package bzu.edu.hotelManagmentAPI.controller;
 
+import bzu.edu.hotelManagmentAPI.assembler.AuthResponseAssembler;
 import bzu.edu.hotelManagmentAPI.dto.AuthResponseDto;
 import bzu.edu.hotelManagmentAPI.dto.LoginDto;
 import bzu.edu.hotelManagmentAPI.dto.RegisterDto;
@@ -10,6 +11,7 @@ import bzu.edu.hotelManagmentAPI.repository.UserRepository;
 import bzu.edu.hotelManagmentAPI.security.JWTGenerator;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,6 +19,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,21 +39,28 @@ public class AuthController {
     private PasswordEncoder passwordEncoder;
     private JWTGenerator jwtGenerator;
 
+    private final AuthResponseAssembler authResponseAssembler;
+
     @Autowired
     public AuthController(AuthenticationManager authenticationManager,
                           UserRepository userRepository,
                           RoleRepository roleRepository,
                           PasswordEncoder passwordEncoder,
-                          JWTGenerator jwtGenerator) {
+                          JWTGenerator jwtGenerator,
+                          AuthResponseAssembler authResponseAssembler) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtGenerator = jwtGenerator;
+        this.authResponseAssembler = authResponseAssembler;
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponseDto> login(@Valid @RequestBody LoginDto loginDto) {
+    public ResponseEntity<EntityModel<AuthResponseDto>> login(@Valid @RequestBody LoginDto loginDto) {
+        if(!userRepository.existsByEmailAddress(loginDto.getEmail())){
+            throw new UsernameNotFoundException("Check your email or password");
+        }
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginDto.getEmail()
                         , loginDto.getPassword())
@@ -58,7 +68,15 @@ public class AuthController {
         SecurityContextHolder.getContext().
                 setAuthentication(authentication);
         String token = jwtGenerator.generateToken(authentication);
-        return new ResponseEntity<>(new AuthResponseDto(token), HttpStatus.OK);
+        UserEntity user = userRepository.findByEmailAddress(loginDto.getEmail()).orElse(null);
+        EntityModel<AuthResponseDto> responseDtoEntityModel;
+
+        if (user != null) {
+            responseDtoEntityModel = authResponseAssembler.toModel(user);
+            responseDtoEntityModel.getContent().setAccessToken(token);
+            return new ResponseEntity<>(responseDtoEntityModel, HttpStatus.OK);
+        }
+        return null;
     }
 
     @PostMapping("/register")
