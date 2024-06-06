@@ -31,12 +31,14 @@ public class Reservation {
 
     @Column(name = "num_addults")
     @NotNull
-    @Min(value = 1,message = "At least one adult is required to reserve a room")
+    @Min(value = 1, message = "At least one adult is required to reserve a room")
     private Integer numAdults;
 
     @Column(name = "num_children")
     private Integer numChildren;
 
+    @Column(name = "payment_status")
+    private String paymentStatus = "OnHold";
 
     @Column(name = "payment_amount")
     private Float paymentAmount;
