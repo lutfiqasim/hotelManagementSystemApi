@@ -31,9 +31,10 @@ public class CustomUserDetailsService implements UserDetailsService {
         return new User(userEntity.getEmailAddress(), userEntity.getPassword(), mapRolesToAuthorities(userEntity.getRoles()));
     }
 
-    private Collection<GrantedAuthority> mapRolesToAuthorities(List<Role> roles) {
-        return roles.stream().map(role -> new
-                        SimpleGrantedAuthority(role.getName())).
-                collect(Collectors.toList());
+    private Collection<? extends GrantedAuthority> mapRolesToAuthorities(List<Role> roles) {
+        //"ROLE_" +
+        return roles.stream()
+                .map(role -> new SimpleGrantedAuthority(role.getName()))
+                .collect(Collectors.toList());
     }
 }

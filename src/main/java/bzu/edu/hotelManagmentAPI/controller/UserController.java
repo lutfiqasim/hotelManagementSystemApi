@@ -1,56 +1,79 @@
 package bzu.edu.hotelManagmentAPI.controller;
 
-import bzu.edu.hotelManagmentAPI.assembler.UserResponseAssembler;
 import bzu.edu.hotelManagmentAPI.dto.UserEntityResponse;
-import bzu.edu.hotelManagmentAPI.exception.ResourceNotFoundException;
-import bzu.edu.hotelManagmentAPI.model.UserEntity;
-import bzu.edu.hotelManagmentAPI.repository.UserRepository;
+import bzu.edu.hotelManagmentAPI.dto.UserUpdateDto;
+import bzu.edu.hotelManagmentAPI.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserController {
-    private final UserRepository userRepository;
-    private final UserResponseAssembler userResponseAssembler;
+
+    private final UserService userService;
 
     @Autowired
-    public UserController(UserRepository userRepository, UserResponseAssembler userResponseAssembler) {
-        this.userRepository = userRepository;
-        this.userResponseAssembler = userResponseAssembler;
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
+    //    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/admins")
-    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<CollectionModel<EntityModel<UserEntityResponse>>> getAllAdmins() {
-        List<UserEntity> users = userRepository.findByRole("ADMIN");
-        if (users.isEmpty()) {
-            throw new ResourceNotFoundException("No registered Employees where found");
+        CollectionModel<EntityModel<UserEntityResponse>> response = userService.getAllAdmins();
+        if (response != null && !response.getContent().isEmpty()) {
+            return ResponseEntity.ok(response);
         }
-        List<EntityModel<UserEntityResponse>> userModels = users.stream()
-                .map(userResponseAssembler::toModel)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(CollectionModel.of(userModels));
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<UserEntityResponse>> getUserById(@PathVariable Long id) {
-        UserEntity user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        return ResponseEntity.ok(userResponseAssembler.toModel(user));
+        EntityModel<UserEntityResponse> response = userService.getUserById(id);
+        return ResponseEntity.ok(response);
     }
 
-    @GetMapping("")
-    @PreAuthorize("hasAuthority('CUSTOMER')")
-    public ResponseEntity<String> registerUser() {
-        return ResponseEntity.ok("Message");
+    @GetMapping("/customers")
+    public ResponseEntity<CollectionModel<EntityModel<UserEntityResponse>>> getAllCustomers() {
+        CollectionModel<EntityModel<UserEntityResponse>> response = userService.getAllCustomers();
+        if (response != null && !response.getContent().isEmpty()) {
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<CollectionModel<EntityModel<UserEntityResponse>>> getAllUsers() {
+        CollectionModel<EntityModel<UserEntityResponse>> response = userService.getAllUsers();
+        if (response != null && !response.getContent().isEmpty()) {
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<EntityModel<UserEntityResponse>> updateUser(@PathVariable Long id, @Valid @RequestBody UserUpdateDto userUpdateDto) {
+        EntityModel<UserEntityResponse> response = userService.updateUser(id, userUpdateDto);
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<EntityModel<UserEntityResponse>> patchUser(@PathVariable Long id, @Valid @RequestBody UserPatchDto userPatchDto) {
+        EntityModel<UserEntityResponse> response = userService.patchUser(id, userPatchDto);
+        return ResponseEntity.ok(response);
     }
 
 }

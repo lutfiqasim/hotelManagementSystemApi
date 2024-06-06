@@ -4,7 +4,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
@@ -13,8 +12,6 @@ import java.util.stream.Collectors;
 
 @Component
 public class JWTGenerator {
-
-
     public String generateToken(Authentication authentication) {
         String email = authentication.getName();
         Date currentDate = new Date();
@@ -36,10 +33,6 @@ public class JWTGenerator {
                 .build().
                 parseSignedClaims(token)
                 .getBody();
-        System.out.println("______");
-        System.out.println(claims.getSubject());
-        System.out.println("______");
-
 
         return claims.getSubject();
     }
