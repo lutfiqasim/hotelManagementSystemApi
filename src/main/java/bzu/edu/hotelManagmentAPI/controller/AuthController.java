@@ -11,7 +11,10 @@ import bzu.edu.hotelManagmentAPI.repository.UserRepository;
 import bzu.edu.hotelManagmentAPI.security.JWTGenerator;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.sql.SQLDataException;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -58,7 +62,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<EntityModel<AuthResponseDto>> login(@Valid @RequestBody LoginDto loginDto) {
-        if(!userRepository.existsByEmailAddress(loginDto.getEmail())){
+        if (!userRepository.existsByEmailAddress(loginDto.getEmail())) {
             throw new UsernameNotFoundException("Check your email or password");
         }
         Authentication authentication = authenticationManager.authenticate(
@@ -82,7 +86,7 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<String> register(@Valid @RequestBody RegisterDto registerDto) {
         if (userRepository.existsByEmailAddress(registerDto.getEmail())) {
-            return new ResponseEntity<>("Email address is already in use", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Email address is already in use", HttpStatus.CONFLICT);
         }
         UserEntity user = new UserEntity();
         user.setEmailAddress(registerDto.getEmail());
@@ -92,9 +96,12 @@ public class AuthController {
         user.setPhoneNumber(registerDto.getPhoneNo());
         Role roles = roleRepository.findByName("CUSTOMER").get();
         user.setRoles(Collections.singletonList(roles));
+        try {
+            userRepository.save(user);
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalArgumentException("Phone number already in use");
+        }
 
-        userRepository.save(user);
-
-        return new ResponseEntity<>("User registered successfully", HttpStatus.OK);
+        return new ResponseEntity<>("User registered successfully", HttpStatus.CREATED);
     }
 }

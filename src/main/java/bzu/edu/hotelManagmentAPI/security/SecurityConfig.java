@@ -46,7 +46,6 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthenticationFilter(authenticationManager(new AuthenticationConfiguration())), UsernamePasswordAuthenticationFilter.class);
         return httpSecurity.build();
     }
-
     @Bean
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration authenticationConfiguration) throws Exception {
