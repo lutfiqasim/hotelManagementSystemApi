@@ -20,6 +20,6 @@ public class Floor {
     private Long id;
 
     @Column(name = "floor_number",nullable = false)
-    @Min(value = 2, message = "you should at least have two floors")
+    @Min(value = 1, message = "you should at least have two floors")
     private Integer floorNumber;
 }

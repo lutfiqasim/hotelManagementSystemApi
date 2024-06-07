@@ -25,7 +25,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    //    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    // @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/admins")
     public ResponseEntity<CollectionModel<EntityModel<UserEntityResponse>>> getAllAdmins() {
         CollectionModel<EntityModel<UserEntityResponse>> response = userService.getAllAdmins();

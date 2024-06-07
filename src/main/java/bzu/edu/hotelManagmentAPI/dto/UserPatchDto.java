@@ -1,15 +1,14 @@
 package bzu.edu.hotelManagmentAPI.dto;
 
+import io.micrometer.common.lang.Nullable;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
 public class UserPatchDto {
 
-    @NotBlank(message = "First name is required")
     private String firstName;
 
-    @NotBlank(message = "Last name is required")
     private String lastName;
 
     @Pattern(regexp = "\\d{10}", message = "Phone number is invalid")
