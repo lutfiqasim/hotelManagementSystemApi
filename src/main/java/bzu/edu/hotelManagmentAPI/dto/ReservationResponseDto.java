@@ -25,6 +25,9 @@ public class ReservationResponseDto {
     @JsonProperty("payment_status")
     private String paymentStatus;
 
+    public ReservationResponseDto() {
+    }
+
     public ReservationResponseDto(Long id, LocalDate checkinDate, LocalDate checkoutDate, Integer numAdults, Integer numChildren, String paymentStatus, Float paymentAmount) {
         this.id = id;
         this.checkinDate = checkinDate;

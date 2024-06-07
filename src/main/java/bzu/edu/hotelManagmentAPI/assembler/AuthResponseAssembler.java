@@ -3,8 +3,6 @@ package bzu.edu.hotelManagmentAPI.assembler;
 import bzu.edu.hotelManagmentAPI.controller.UserController;
 import bzu.edu.hotelManagmentAPI.dto.AuthResponseDto;
 import bzu.edu.hotelManagmentAPI.model.UserEntity;
-import org.springframework.context.annotation.Bean;
-import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
