@@ -18,7 +18,7 @@ public class AuthResponseAssembler implements RepresentationModelAssembler<UserE
         EntityModel<AuthResponseDto> entityModel = EntityModel.of(responseDto);
         if (user != null) {
             for (var role : user.getRoles()) {
-                if ("ADMIN".equals(role.getName())) {
+                if ("ADMIN".equals(role.getName().name())) {
                     entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getAllAdmins()).withRel("admins"));
                 }
                 entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getUserById(user.getId())).withSelfRel());

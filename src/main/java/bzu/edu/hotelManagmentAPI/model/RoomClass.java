@@ -16,6 +16,7 @@ public class RoomClass {
     @NotBlank(message = "class name is required")
     @Size(max = 30, message = "class name must be at most 30 characters")
     private String className;
+
     @Column(nullable = false)
     @Min(value = 1, message = "Price must be greater than 0")
     private Float price;

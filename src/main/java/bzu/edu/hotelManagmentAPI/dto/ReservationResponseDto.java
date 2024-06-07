@@ -2,13 +2,27 @@ package bzu.edu.hotelManagmentAPI.dto;
 
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class ReservationResponseDto {
     private Long id;
+
+    @JsonProperty("check_in_date")
     private LocalDate checkinDate;
+
+    @JsonProperty("check_out_date")
     private LocalDate checkoutDate;
+
+    @JsonProperty("num_adults")
     private Integer numAdults;
+
+    @JsonProperty("num_children")
     private Integer numChildren;
+
+    @JsonProperty("payment_amount")
     private Float paymentAmount;
+
+    @JsonProperty("payment_status")
     private String paymentStatus;
 
     public ReservationResponseDto(Long id, LocalDate checkinDate, LocalDate checkoutDate, Integer numAdults, Integer numChildren, String paymentStatus, Float paymentAmount) {

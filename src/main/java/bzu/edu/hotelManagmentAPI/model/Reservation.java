@@ -25,11 +25,12 @@ public class Reservation {
     @Column(name = "checkin_date")
     @NotNull
     private LocalDate checkinDate;
+    
     @Column(name = "checkout_date")
     @NotNull
     private LocalDate checkoutDate;
 
-    @Column(name = "num_addults")
+    @Column(name = "num_adults")
     @NotNull
     @Min(value = 1, message = "At least one adult is required to reserve a room")
     private Integer numAdults;

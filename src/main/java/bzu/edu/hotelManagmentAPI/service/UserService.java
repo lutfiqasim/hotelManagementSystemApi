@@ -1,7 +1,7 @@
 package bzu.edu.hotelManagmentAPI.service;
 
-import bzu.edu.hotelManagmentAPI.controller.UserPatchDto;
 import bzu.edu.hotelManagmentAPI.dto.UserEntityResponse;
+import bzu.edu.hotelManagmentAPI.dto.UserPatchDto;
 import bzu.edu.hotelManagmentAPI.dto.UserUpdateDto;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;

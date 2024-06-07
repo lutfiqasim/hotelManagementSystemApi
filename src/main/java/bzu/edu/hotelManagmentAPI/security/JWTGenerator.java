@@ -6,7 +6,6 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
-
 import java.util.Date;
 import java.util.stream.Collectors;
 
@@ -29,10 +28,10 @@ public class JWTGenerator {
 
     public String getEmailFromJWT(String token) {
         Claims claims = Jwts.parser()
-                .setSigningKey(SecurityConstants.JWT_SECRET)
+                .verifyWith(SecurityConstants.JWT_SECRET)
                 .build().
                 parseSignedClaims(token)
-                .getBody();
+                .getPayload();
 
         return claims.getSubject();
     }
@@ -55,7 +54,7 @@ public class JWTGenerator {
         }
 
         try {
-            Jwts.parser().setSigningKey(SecurityConstants.JWT_SECRET).build().parseSignedClaims(token);
+            Jwts.parser().verifyWith(SecurityConstants.JWT_SECRET).build().parseSignedClaims(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
             throw new MalformedJwtException("Failed to decode token", e);

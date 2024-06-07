@@ -1,6 +1,5 @@
 package bzu.edu.hotelManagmentAPI.model;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,6 +20,7 @@ public class RoomClassFeature {
     @ManyToOne
     @JoinColumn(name = "room_class_id")
     private RoomClass roomClass;
+    
     @ManyToOne
     @JoinColumn(name = "feature_id")
     private Feature feature;

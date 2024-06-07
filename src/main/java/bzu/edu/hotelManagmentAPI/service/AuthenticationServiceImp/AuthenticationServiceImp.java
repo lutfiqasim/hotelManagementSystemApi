@@ -4,6 +4,7 @@ import bzu.edu.hotelManagmentAPI.assembler.AuthResponseAssembler;
 import bzu.edu.hotelManagmentAPI.dto.AuthResponseDto;
 import bzu.edu.hotelManagmentAPI.dto.LoginDto;
 import bzu.edu.hotelManagmentAPI.dto.RegisterDto;
+import bzu.edu.hotelManagmentAPI.enums.UserRole;
 import bzu.edu.hotelManagmentAPI.model.Role;
 import bzu.edu.hotelManagmentAPI.model.UserEntity;
 import bzu.edu.hotelManagmentAPI.repository.RoleRepository;
@@ -82,7 +83,7 @@ public class AuthenticationServiceImp implements AuthenticationService {
         user.setLastName(registerDto.getLastName());
         user.setPhoneNumber(registerDto.getPhoneNo());
 
-        Role roles = roleRepository.findByName("CUSTOMER").orElseThrow(() -> new RuntimeException("Role not found"));
+        Role roles = roleRepository.findByName(UserRole.CUSTOMER).orElseThrow(() -> new RuntimeException("Role not found"));
         user.setRoles(Collections.singletonList(roles));
 
         try {

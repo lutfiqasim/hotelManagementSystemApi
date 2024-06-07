@@ -1,8 +1,8 @@
 package bzu.edu.hotelManagmentAPI.service.UserServiceImp;
 
 import bzu.edu.hotelManagmentAPI.assembler.UserResponseAssembler;
-import bzu.edu.hotelManagmentAPI.controller.UserPatchDto;
 import bzu.edu.hotelManagmentAPI.dto.UserEntityResponse;
+import bzu.edu.hotelManagmentAPI.dto.UserPatchDto;
 import bzu.edu.hotelManagmentAPI.dto.UserUpdateDto;
 import bzu.edu.hotelManagmentAPI.enums.UserRole;
 import bzu.edu.hotelManagmentAPI.exception.ResourceNotFoundException;
@@ -91,7 +91,7 @@ public class UserServiceImp implements UserService {
         UserEntity user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        boolean isAdmin = loggedInUser.getRoles().stream().anyMatch(role -> role.getName().equals("ADMIN"));
+        boolean isAdmin = loggedInUser.getRoles().stream().anyMatch(role -> role.getName().equals(UserRole.ADMIN));
 //        System.out.println("IS AMDI: " + isAdmin);
         if (!isAdmin && !loggedInUser.getId().equals(user.getId())) {
             throw new AuthorizationServiceException("User Unauthorized");
