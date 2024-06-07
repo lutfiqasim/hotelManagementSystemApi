@@ -41,14 +41,12 @@ public class RoomServiceImp implements RoomService {
 
     @Override
     public void deleteRoom(Long id) {
-        
         roomRepository.deleteById(id);
     }
 
     @Override
     public EntityModel<RoomResponseDto> updateRoom(Long id, RoomUpdateDto roomUpdateDto) {
         throw new UnsupportedOperationException("Contact support");
-
     }
 
     @Override

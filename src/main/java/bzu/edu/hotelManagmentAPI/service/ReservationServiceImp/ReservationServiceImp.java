@@ -6,7 +6,6 @@ import bzu.edu.hotelManagmentAPI.dto.ReservationRequestDto;
 import bzu.edu.hotelManagmentAPI.dto.ReservationResponseDto;
 import bzu.edu.hotelManagmentAPI.dto.ReservationUpdateDto;
 import bzu.edu.hotelManagmentAPI.enums.RoomStatusEnum;
-import bzu.edu.hotelManagmentAPI.enums.UserRole;
 import bzu.edu.hotelManagmentAPI.exception.ResourceNotFoundException;
 import bzu.edu.hotelManagmentAPI.model.Reservation;
 import bzu.edu.hotelManagmentAPI.model.Room;
@@ -16,7 +15,7 @@ import bzu.edu.hotelManagmentAPI.repository.ReservationRepository;
 import bzu.edu.hotelManagmentAPI.repository.RoomRepository;
 import bzu.edu.hotelManagmentAPI.repository.RoomStatusRepository;
 import bzu.edu.hotelManagmentAPI.repository.UserRepository;
-import bzu.edu.hotelManagmentAPI.security.HasAuthority;
+import bzu.edu.hotelManagmentAPI.security.SecurityUtils;
 import bzu.edu.hotelManagmentAPI.service.ReservationService;
 import jakarta.validation.Valid;
 import org.apache.coyote.BadRequestException;
@@ -25,9 +24,6 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AuthorizationServiceException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.time.LocalDate;
@@ -52,7 +48,7 @@ public class ReservationServiceImp implements ReservationService {
     @Override
     public CollectionModel<EntityModel<ReservationResponseDto>> getUserReservations(Long userId) {
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        checkIfSameUserOrAdmin(user);
+        SecurityUtils.checkIfSameUserOrAdmin(user);
         List<Reservation> reservationList = reservationRepository.findByUserId(userId);
         if (reservationList.isEmpty()) {
             return CollectionModel.empty();
@@ -62,7 +58,7 @@ public class ReservationServiceImp implements ReservationService {
 
     @Override
     public CollectionModel<EntityModel<ReservationResponseDto>> getAllReservations() {
-        checkIfAdminAuthority();
+        SecurityUtils.checkIfAdminAuthority();
         throw new UnsupportedOperationException("Request not supported yet, contact support for more");
     }
 
@@ -76,7 +72,7 @@ public class ReservationServiceImp implements ReservationService {
     @Override
     public EntityModel<ReservationResponseDto> getReservationById(Long id) {
         Reservation reservation = reservationRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Reservation not found"));
-        checkIfSameUserOrAdmin(reservation.getUserEntity());
+        SecurityUtils.checkIfSameUserOrAdmin(reservation.getUserEntity());
         return reservationResponseAssembler.toModel(reservation);
     }
 
@@ -105,14 +101,12 @@ public class ReservationServiceImp implements ReservationService {
     @Override
     public ResponseEntity<CollectionModel<EntityModel<ReservationResponseDto>>> getUserReservationsOnHold(Long userId) {
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        checkIfSameUserOrAdmin(user);
-
+        SecurityUtils.checkIfSameUserOrAdmin(user);
         List<Reservation> onHoldResrevations = reservationRepository.findByUserIdAndPaymentStatus(userId, "OnHold");
         if (onHoldResrevations.isEmpty()) {
             return new ResponseEntity<>(CollectionModel.empty(), HttpStatus.NO_CONTENT);
         }
         return new ResponseEntity<>(reservationResponseAssembler.toCollectionModel(onHoldResrevations), HttpStatus.OK);
-
 //        throw new UnsupportedOperationException("Request not supported yet, contact support for more");
 
     }
@@ -120,7 +114,7 @@ public class ReservationServiceImp implements ReservationService {
     @Override
     public CollectionModel<EntityModel<ReservationResponseDto>> getUpcomingReservations(Long userId) {
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        checkIfSameUserOrAdmin(user);
+        SecurityUtils.checkIfSameUserOrAdmin(user);
         List<Reservation> upcomingReservations = reservationRepository.findByUserIdAndCheckinDateAfter(userId, LocalDate.now());
         if (upcomingReservations.isEmpty()) {
             return CollectionModel.empty();
@@ -148,19 +142,5 @@ public class ReservationServiceImp implements ReservationService {
             room.setStatus(roomStatus);
         }
         roomRepository.saveAll(rooms);
-    }
-
-    private void checkIfSameUserOrAdmin(UserEntity user) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (!auth.getName().equals(user.getEmailAddress())) {
-            checkIfAdminAuthority();
-        }
-    }
-
-    private static void checkIfAdminAuthority() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !HasAuthority.hasAuthority(auth, UserRole.ADMIN.name())) {
-            throw new AuthorizationServiceException("User Unauthorized");
-        }
     }
 }
