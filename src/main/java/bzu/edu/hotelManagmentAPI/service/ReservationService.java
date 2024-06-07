@@ -4,6 +4,7 @@ import bzu.edu.hotelManagmentAPI.dto.ReservationPaymentDto;
 import bzu.edu.hotelManagmentAPI.dto.ReservationResponseDto;
 import bzu.edu.hotelManagmentAPI.model.Reservation;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -15,7 +16,7 @@ public interface ReservationService {
 
     public abstract CollectionModel<EntityModel<ReservationResponseDto>> getAllReservations();
 
-    public abstract ResponseEntity<?> getAllReservations(int page, int size);
+    public abstract Page<EntityModel<ReservationResponseDto>> getAllReservations(int page, int size);
 
     public abstract String payForReservation(ReservationPaymentDto reservationPaymentDto);
 

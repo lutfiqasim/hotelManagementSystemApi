@@ -42,10 +42,10 @@ public class ReservationServiceImp implements ReservationService {
     }
 
     @Override
-    public ResponseEntity<?> getAllReservations(int page, int size) {
+    public Page<EntityModel<ReservationResponseDto>> getAllReservations(int page, int size) {
         Pageable pageable = Pageable.ofSize(size).withPage(page);
         Page<EntityModel<ReservationResponseDto>> reservations = reservationRepository.findAll(pageable).map(reservationResponseAssembler::toModel);
-        return ResponseEntity.ok(reservations);
+        return reservations;
     }
 
     // @Override
