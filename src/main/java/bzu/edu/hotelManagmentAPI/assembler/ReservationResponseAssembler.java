@@ -7,7 +7,9 @@ import bzu.edu.hotelManagmentAPI.model.Reservation;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ReservationResponseAssembler implements RepresentationModelAssembler<Reservation, EntityModel<ReservationResponseDto>> {
     @Override
     public EntityModel<ReservationResponseDto> toModel(Reservation entity) {
