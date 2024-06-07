@@ -1,5 +1,6 @@
 package bzu.edu.hotelManagmentAPI.assembler;
 
+import bzu.edu.hotelManagmentAPI.controller.ReservationController;
 import bzu.edu.hotelManagmentAPI.controller.UserController;
 import bzu.edu.hotelManagmentAPI.dto.AuthResponseDto;
 import bzu.edu.hotelManagmentAPI.model.UserEntity;
@@ -18,6 +19,7 @@ public class AuthResponseAssembler implements RepresentationModelAssembler<UserE
             for (var role : user.getRoles()) {
                 if ("ADMIN".equals(role.getName().name())) {
                     entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getAllAdmins()).withRel("admins"));
+                    entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(ReservationController.class).getAllReservations("v2", 0, 50)).withRel("reservations"));
                 }
                 else { //customer
                     // entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn
