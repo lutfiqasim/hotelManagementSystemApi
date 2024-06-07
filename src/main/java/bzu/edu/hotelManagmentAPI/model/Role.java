@@ -17,6 +17,10 @@ public class Role {
     @Enumerated(EnumType.STRING)
     private UserRole name;
 
+    public Role(UserRole name) {
+        this.name = name;
+    }
+
     @Override
     public String toString() {
         return "Role{" +

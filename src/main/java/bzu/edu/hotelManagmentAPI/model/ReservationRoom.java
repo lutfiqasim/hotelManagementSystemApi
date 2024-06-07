@@ -6,22 +6,23 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@AllArgsConstructor
 @NoArgsConstructor
-@Setter
+@AllArgsConstructor
 @Getter
+@Setter
 @Entity
-@Table(name = "room_class_feature")
-public class RoomClassFeature {
+@Table(name = "reservation_room")
+public class ReservationRoom {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "room_class_id")
-    private RoomClass roomClass;
+    @JoinColumn(name = "reservation_id")
+    private Reservation reservation;
 
     @ManyToOne
-    @JoinColumn(name = "feature_id")
-    private Feature feature;
+    @JoinColumn(name = "room_id")
+    private Room room;
+
 }

@@ -25,10 +25,11 @@ public class ReservationResponseDto {
     @JsonProperty("payment_status")
     private String paymentStatus;
 
-    public ReservationResponseDto() {
-    }
+    @JsonProperty("user_id")
+    private Long userId;
 
-    public ReservationResponseDto(Long id, LocalDate checkinDate, LocalDate checkoutDate, Integer numAdults, Integer numChildren, String paymentStatus, Float paymentAmount) {
+
+    public ReservationResponseDto(Long id, LocalDate checkinDate, LocalDate checkoutDate, Integer numAdults, Integer numChildren, String paymentStatus, Float paymentAmount, Long userId) {
         this.id = id;
         this.checkinDate = checkinDate;
         this.checkoutDate = checkoutDate;
@@ -36,6 +37,7 @@ public class ReservationResponseDto {
         this.numChildren = numChildren;
         this.paymentStatus = paymentStatus;
         this.paymentAmount = paymentAmount;
+        this.userId = userId;
     }
 
     // Getters and setters
@@ -85,5 +87,21 @@ public class ReservationResponseDto {
 
     public void setPaymentAmount(Float paymentAmount) {
         this.paymentAmount = paymentAmount;
+    }
+
+    public String getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(String paymentStatus) {
+        this.paymentStatus = paymentStatus;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 }

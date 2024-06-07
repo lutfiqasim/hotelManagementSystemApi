@@ -14,5 +14,5 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     List<Reservation> findByUserIdAndPaymentStatus(Long userId, String paymentStatus);
 
     // find upcoming reservations by user ID and check-in date
-    List<Reservation> findByUserIdAndCheckinDateAfterAndPaymentStatus(Long userId, LocalDate date, String paymentStatus);
+    List<Reservation> findByUserIdAndCheckinDateAfter(Long userId, LocalDate date);
 }

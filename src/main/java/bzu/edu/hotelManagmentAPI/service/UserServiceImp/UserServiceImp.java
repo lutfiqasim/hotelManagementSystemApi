@@ -162,7 +162,7 @@ public class UserServiceImp implements UserService {
 
     private static void checkIfAdminAuthority() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !HasAuthority.hasAuthority(auth, "ADMIN")) {
+        if (auth == null || !HasAuthority.hasAuthority(auth, UserRole.ADMIN.name())) {
             throw new AuthorizationServiceException("User Unauthorized");
         }
     }

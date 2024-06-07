@@ -1,14 +1,14 @@
 package bzu.edu.hotelManagmentAPI.controller;
 
+import bzu.edu.hotelManagmentAPI.dto.ReservationPaymentDto;
 import bzu.edu.hotelManagmentAPI.dto.ReservationResponseDto;
 import bzu.edu.hotelManagmentAPI.service.ReservationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/reservations")
@@ -25,5 +25,11 @@ public class ReservationController {
         return reservationService.getUserReservations(userId);
     }
     
+    @PostMapping("/{id}/pay")
+    public ResponseEntity<String> payForReservation(@RequestBody ReservationPaymentDto paymentDto) {
+        reservationService.payForReservation(paymentDto);
+        return ResponseEntity.ok("Successful Payment");
+    }
+
 
 }
