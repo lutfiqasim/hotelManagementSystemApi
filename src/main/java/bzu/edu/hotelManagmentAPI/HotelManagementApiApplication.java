@@ -8,6 +8,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
@@ -20,6 +21,7 @@ public class HotelManagementApiApplication {
     }
 
     @Bean
+    @Transactional
     public ApplicationRunner initializeDatabase(RoomStatusRepository roomStatusRepository,
                                                 RoomClassRepository roomClassRepository,
                                                 FloorRepository floorRepository,
@@ -43,33 +45,19 @@ public class HotelManagementApiApplication {
 
             if (floorRepository.count() == 0) {
                 floorRepository.saveAll(Arrays.asList(
-                        new Floor(1),
                         new Floor(2),
-                        new Floor(3)
+                        new Floor(3),
+                        new Floor(4)
                 ));
             }
+
             if (roleRepository.count() == 0) {
                 roleRepository.saveAll(Arrays.asList(
                         new Role(UserRole.ADMIN),
                         new Role(UserRole.CUSTOMER)
                 ));
             }
-            if (roomRepository.count() == 0) {
-                List<Floor> floorList = floorRepository.findAll();
-                List<RoomClass> classList = roomClassRepository.findAll();
-                List<RoomStatus> roomStatuses = roomStatusRepository.findAll();
-                roomRepository.saveAll(Arrays.asList(
-                        new Room(floorList.get(0), classList.get(0), roomStatuses.get(1), "101"),
-                        new Room(floorList.get(0), classList.get(1), roomStatuses.get(1), "102"),
-                        new Room(floorList.get(0), classList.get(2), roomStatuses.get(1), "103"),
-                        new Room(floorList.get(1), classList.get(0), roomStatuses.get(1), "201"),
-                        new Room(floorList.get(1), classList.get(1), roomStatuses.get(1), "202"),
-                        new Room(floorList.get(1), classList.get(2), roomStatuses.get(1), "203"),
-                        new Room(floorList.get(2), classList.get(0), roomStatuses.get(1), "301"),
-                        new Room(floorList.get(2), classList.get(1), roomStatuses.get(1), "302")
-                ));
-            }
+
         };
     }
-
 }

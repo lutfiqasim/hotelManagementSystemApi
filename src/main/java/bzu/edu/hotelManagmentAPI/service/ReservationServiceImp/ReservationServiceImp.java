@@ -51,7 +51,7 @@ public class ReservationServiceImp implements ReservationService {
     public CollectionModel<EntityModel<ReservationResponseDto>> getUserReservations(Long userId) {
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         SecurityUtils.checkIfSameUserOrAdmin(user);
-        List<Reservation> reservationList = reservationRepository.findByUserId(userId);
+        List<Reservation> reservationList = reservationRepository.findByUserEntity(user);
         if (reservationList.isEmpty()) {
             return CollectionModel.empty();
         }
@@ -104,7 +104,7 @@ public class ReservationServiceImp implements ReservationService {
     public ResponseEntity<CollectionModel<EntityModel<ReservationResponseDto>>> getUserReservationsOnHold(Long userId) {
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         SecurityUtils.checkIfSameUserOrAdmin(user);
-        List<Reservation> onHoldResrevations = reservationRepository.findByUserIdAndPaymentStatus(userId, "OnHold");
+        List<Reservation> onHoldResrevations = reservationRepository.findByUserEntityAndPaymentStatus(user, "OnHold");
         if (onHoldResrevations.isEmpty()) {
             return new ResponseEntity<>(CollectionModel.empty(), HttpStatus.NO_CONTENT);
         }
@@ -117,7 +117,7 @@ public class ReservationServiceImp implements ReservationService {
     public CollectionModel<EntityModel<ReservationResponseDto>> getUpcomingReservations(Long userId) {
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         SecurityUtils.checkIfSameUserOrAdmin(user);
-        List<Reservation> upcomingReservations = reservationRepository.findByUserIdAndCheckinDateAfter(userId, LocalDate.now());
+        List<Reservation> upcomingReservations = reservationRepository.findByUserEntityIdAndCheckinDateAfter(user, LocalDate.now());
         if (upcomingReservations.isEmpty()) {
             return CollectionModel.empty();
         }
