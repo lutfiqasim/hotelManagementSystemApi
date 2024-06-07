@@ -19,6 +19,10 @@ public class AuthResponseAssembler implements RepresentationModelAssembler<UserE
                 if ("ADMIN".equals(role.getName().name())) {
                     entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getAllAdmins()).withRel("admins"));
                 }
+                else { //customer
+                    // entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn
+
+                }
                 entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getUserById(user.getId())).withSelfRel());
                 //add reservations link available rooms etc....
             }
