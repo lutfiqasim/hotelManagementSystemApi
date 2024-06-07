@@ -21,6 +21,8 @@ import bzu.edu.hotelManagmentAPI.service.ReservationService;
 import jakarta.validation.Valid;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
@@ -29,10 +31,12 @@ import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-
+@Service
 public class ReservationServiceImp implements ReservationService {
     private final ReservationRepository reservationRepository;
     private final UserRepository userRepository;
@@ -72,6 +76,16 @@ public class ReservationServiceImp implements ReservationService {
         reservation.setPaymentStatus("Paid");
         reservationRepository.save(reservation);
     }
+    
+    public Page<EntityModel<ReservationResponseDto>> getAllReservations(int page, int size) {
+        Pageable pageable = Pageable.ofSize(size).withPage(page);
+        Page<EntityModel<ReservationResponseDto>> reservations = reservationRepository.findAll(pageable).map(reservationResponseAssembler::toModel);
+        return reservations;
+    }
+
+    // @Override
+    // public ResponseEntity<?> getResevationAtDay
+
 
     @Override
     public EntityModel<ReservationResponseDto> getReservationById(Long id) {

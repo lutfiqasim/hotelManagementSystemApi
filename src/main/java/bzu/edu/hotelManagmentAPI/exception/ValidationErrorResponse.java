@@ -7,12 +7,16 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 @Getter
 @Setter
 @AllArgsConstructor
 public class ValidationErrorResponse {
     private LocalDateTime timestamp;
     private String message;
+    
+    @JsonProperty("field_errors")
     private Map<String,String> fieldErrors;
 
     @Override

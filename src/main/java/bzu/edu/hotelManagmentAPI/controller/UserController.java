@@ -17,14 +17,14 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/users")
 public class UserController {
 
-    private final UserService userService;
+    protected final UserService userService;
 
     @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
     }
 
-    //    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    // @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/admins")
     public ResponseEntity<CollectionModel<EntityModel<UserEntityResponse>>> getAllAdmins() {
         CollectionModel<EntityModel<UserEntityResponse>> response = userService.getAllAdmins();

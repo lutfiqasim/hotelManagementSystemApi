@@ -19,7 +19,7 @@ public class UserResponseAssembler implements RepresentationModelAssembler<UserE
         entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class)
                 .getUserById(entity.getId())).withSelfRel());
 
-        return entityModel;
+        return entityModel; 
     }
 
     @Override

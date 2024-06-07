@@ -13,8 +13,7 @@ public class ReservationResponseAssembler implements RepresentationModelAssemble
     public EntityModel<ReservationResponseDto> toModel(Reservation entity) {
         EntityModel<ReservationResponseDto> entityModel = getModel(entity);
         entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getUserById(entity.getUserEntity().getId())).withRel("User"));
-        entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(ReservationController.class).getUserReservations(entity.getUserEntity().getId())).withSelfRel());
-//        entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn()))
+        entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(ReservationController.class).getUserReservations("v2", entity.getUserEntity().getId())).withSelfRel());
 //        entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(ReservationController.class).g))
         return entityModel;
     }

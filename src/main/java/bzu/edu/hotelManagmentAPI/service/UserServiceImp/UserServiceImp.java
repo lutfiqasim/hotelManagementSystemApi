@@ -41,7 +41,7 @@ public class UserServiceImp implements UserService {
     @Override
     public CollectionModel<EntityModel<UserEntityResponse>> getAllAdmins() {
         checkIfAdminAuthority();
-        List<UserEntity> users = userRepository.findByRole("ADMIN");
+        List<UserEntity> users = userRepository.findByRole(UserRole.ADMIN);
         if (users.isEmpty()) {
             return CollectionModel.empty();
         }
@@ -63,9 +63,19 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
+    public EntityModel<UserEntityResponse> getUserByEmail(String email) {
+        UserEntity user = userRepository.findByEmailAddress(email).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && (HasAuthority.hasAuthority(auth, UserRole.ADMIN.name()) || auth.getName().equals(user.getEmailAddress()))) {
+            return userResponseAssembler.toModel(user);
+        }
+        throw new AuthorizationServiceException("User unAuthorized");
+    }
+
+    @Override
     public CollectionModel<EntityModel<UserEntityResponse>> getAllCustomers() {
         checkIfAdminAuthority();
-        List<UserEntity> customers = userRepository.findByRole("CUSTOMER");
+        List<UserEntity> customers = userRepository.findByRole(UserRole.CUSTOMER);
         if (customers.isEmpty()) {
             return CollectionModel.empty();
         }

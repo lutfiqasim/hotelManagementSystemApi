@@ -14,6 +14,8 @@ import bzu.edu.hotelManagmentAPI.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -21,6 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.Collections;
 
@@ -73,8 +76,10 @@ public class AuthenticationServiceImp implements AuthenticationService {
 
     public String registerUser(RegisterDto registerDto) {
         if (userRepository.existsByEmailAddress(registerDto.getEmail())) {
-            return "Email address is already in use";
+            throw new HttpClientErrorException(HttpStatus.CONFLICT, "Email address is already in use");
         }
+
+
 
         UserEntity user = new UserEntity();
         user.setEmailAddress(registerDto.getEmail());
@@ -83,13 +88,13 @@ public class AuthenticationServiceImp implements AuthenticationService {
         user.setLastName(registerDto.getLastName());
         user.setPhoneNumber(registerDto.getPhoneNo());
 
-        Role roles = roleRepository.findByName(UserRole.CUSTOMER).orElseThrow(() -> new RuntimeException("Role not found"));
+        Role roles = roleRepository.findByName(UserRole.CUSTOMER).orElseThrow(() -> new RuntimeException("Role not found!"));
         user.setRoles(Collections.singletonList(roles));
 
         try {
             userRepository.save(user);
         } catch (DataIntegrityViolationException e) {
-            throw new IllegalArgumentException("Phone number already in use", e);
+            throw new HttpClientErrorException(HttpStatus.CONFLICT, "Phone number already in use");
         }
 
         return "User registered successfully";
