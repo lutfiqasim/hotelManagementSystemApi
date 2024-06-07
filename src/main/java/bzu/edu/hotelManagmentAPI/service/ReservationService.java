@@ -22,4 +22,9 @@ public interface ReservationService {
 
     public abstract void deleteReservation(Long id);
 
+    public abstract CollectionModel<EntityModel<ReservationResponseDto>> getUserReservationsOnHold(Long userId);
+
+    public abstract CollectionModel<EntityModel<ReservationResponseDto>> getUpcomingReservations(Long userId);
+
+
 }
