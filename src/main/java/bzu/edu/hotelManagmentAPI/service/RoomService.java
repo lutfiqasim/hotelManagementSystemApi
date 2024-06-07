@@ -10,6 +10,12 @@ import org.springframework.hateoas.EntityModel;
 public interface RoomService {
     CollectionModel<EntityModel<RoomResponseDto>> getAllRooms();
 
+    CollectionModel<EntityModel<RoomResponseDto>> getAllRooms(Integer floor); //V2 only
+
+    CollectionModel<EntityModel<RoomResponseDto>> getRoomsBySize(Integer size); //V2 only
+
+    CollectionModel<EntityModel<RoomResponseDto>> getRoomsByDate(String date); //V2 and available rooms only 
+
     CollectionModel<EntityModel<RoomResponseDto>> getAvailableRooms();
 
     EntityModel<RoomResponseDto> getRoomById(Long id);
