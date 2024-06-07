@@ -2,7 +2,6 @@ package bzu.edu.hotelManagmentAPI.security;
 
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-
 import javax.crypto.SecretKey;
 
 public class SecurityConstants {

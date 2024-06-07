@@ -1,6 +1,7 @@
 package bzu.edu.hotelManagmentAPI.controller;
 
 import bzu.edu.hotelManagmentAPI.dto.UserEntityResponse;
+import bzu.edu.hotelManagmentAPI.dto.UserPatchDto;
 import bzu.edu.hotelManagmentAPI.dto.UserUpdateDto;
 import bzu.edu.hotelManagmentAPI.service.UserService;
 import jakarta.validation.Valid;

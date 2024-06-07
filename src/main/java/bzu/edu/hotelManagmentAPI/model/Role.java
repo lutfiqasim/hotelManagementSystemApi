@@ -1,5 +1,6 @@
 package bzu.edu.hotelManagmentAPI.model;
 
+import bzu.edu.hotelManagmentAPI.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,7 +13,9 @@ public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
+
+    @Enumerated(EnumType.STRING)
+    private UserRole name;
 
     @Override
     public String toString() {

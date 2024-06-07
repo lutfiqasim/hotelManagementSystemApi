@@ -1,4 +1,4 @@
-package bzu.edu.hotelManagmentAPI.controller;
+package bzu.edu.hotelManagmentAPI.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

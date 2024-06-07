@@ -9,6 +9,7 @@ public class LoginDto {
     @Email
     @NotBlank(message = "email can't be empty")
     private String email;
+
     @NotBlank(message = "password can't be empty")
     private String password;
 }
