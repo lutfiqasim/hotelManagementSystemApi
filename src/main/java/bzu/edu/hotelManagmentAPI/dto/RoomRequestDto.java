@@ -12,8 +12,14 @@ public class RoomRequestDto {
     @JsonProperty("num_beds")
     private int numBeds;
 
+    @JsonProperty("status")
+    private String status;
+
     private Float price;
 
     @JsonProperty("floor_number")
     private int floorNumber;
+
+    @JsonProperty("room_number")
+    private String roomNumber;
 }

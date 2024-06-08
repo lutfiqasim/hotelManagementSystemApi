@@ -8,6 +8,7 @@ import bzu.edu.hotelManagmentAPI.dto.RoomUpdateDto;
 import bzu.edu.hotelManagmentAPI.enums.RoomStatusEnum;
 import bzu.edu.hotelManagmentAPI.exception.ResourceNotFoundException;
 import bzu.edu.hotelManagmentAPI.model.Floor;
+import bzu.edu.hotelManagmentAPI.model.Room;
 import bzu.edu.hotelManagmentAPI.model.RoomClass;
 import bzu.edu.hotelManagmentAPI.model.RoomStatus;
 import bzu.edu.hotelManagmentAPI.repository.FloorRepository;
@@ -76,13 +77,37 @@ public class RoomServiceImp implements RoomService {
     @Override
     public EntityModel<RoomResponseDto> getRoomById(Long id) {
         SecurityUtils.checkIfAdminAuthority();
-        throw new UnsupportedOperationException("Contact support");
+        Room room = roomRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Room not found!"));
+        return roomResponseAssembler.toModel(room);
     }
 
     @Override
     public EntityModel<RoomResponseDto> addNewRoom(RoomRequestDto roomRequestDto) {
         SecurityUtils.checkIfAdminAuthority();
-        throw new UnsupportedOperationException("Contact support");
+        try{
+            Floor floor = floorRepository.findByFloorNumber(roomRequestDto.getFloorNumber());
+            if (floor == null){
+                throw new RuntimeException("Floor " + roomRequestDto.getFloorNumber() + " not found, add floor first");
+            }
+            RoomClass roomClass = roomClassRepository.findByClassName(roomRequestDto.getClassName());
+            if (roomClass == null){
+                throw new RuntimeException("Room class " + roomRequestDto.getClassName() + " not found, add room class first");
+            }
+            RoomStatus roomStatus;
+            if (roomRequestDto.getStatus().equals("AVAILABLE")){
+                roomStatus = roomStatusRepository.findByStatusName(RoomStatusEnum.Available).orElseThrow(() ->
+                  new EnumConstantNotPresentException(RoomStatusEnum.class, RoomStatusEnum.Available.name())); 
+            }
+            else {
+                roomStatus = roomStatusRepository.findByStatusName(RoomStatusEnum.Maintenance).orElseThrow(() ->
+                  new EnumConstantNotPresentException(RoomStatusEnum.class, RoomStatusEnum.Maintenance.name()));
+            }
+            Room room = new Room(floor, roomClass, roomStatus, roomRequestDto.getRoomNumber());
+            return roomResponseAssembler.toModel(roomRepository.save(room));
+        } catch (Exception e){
+            System.out.println(e.getMessage()); //TODO: remove this line
+            throw new RuntimeException("Failed to add new room!");
+        }
     }
 
     @Override

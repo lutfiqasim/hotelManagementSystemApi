@@ -7,18 +7,13 @@ import bzu.edu.hotelManagmentAPI.dto.ReservationUpdateDto;
 import bzu.edu.hotelManagmentAPI.service.ReservationService;
 import jakarta.validation.Valid;
 import org.apache.coyote.BadRequestException;
-
-import java.sql.Date;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.ResponseEntity;
 
 @RestController
 @RequestMapping(value="/api/reservations", headers = "X-API-Version=1")

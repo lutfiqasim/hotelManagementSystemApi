@@ -21,6 +21,7 @@ public class RoomResponseDto {
     @JsonProperty("floor_number")
     private int floorNumber;
 
+
     public RoomResponseDto(Room roomEntity){
         this.id = roomEntity.getId();
         this.status = roomEntity.getStatus().getStatusName().name();

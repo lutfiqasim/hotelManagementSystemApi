@@ -74,18 +74,12 @@ public class ReservationServiceImp implements ReservationService {
         return CollectionModel.of(reservations);
     }
 
-
-
     @Override
     public void payForReservation(ReservationPaymentDto reservationPaymentDto) {
         Reservation reservation = reservationRepository.findById(reservationPaymentDto.getReservationId()).orElseThrow(() -> new ResourceNotFoundException("Reservation not found"));
         reservation.setPaymentStatus("Paid");
         reservationRepository.save(reservation);
     }
-
-    // @Override
-    // public ResponseEntity<?> getResevationAtDay
-
 
     @Override
     public EntityModel<ReservationResponseDto> getReservationById(Long id) {
