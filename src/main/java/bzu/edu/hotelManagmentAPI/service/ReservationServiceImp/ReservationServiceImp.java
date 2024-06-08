@@ -153,9 +153,9 @@ public class ReservationServiceImp implements ReservationService {
 
     private void reserveRoomsIfAvailable(List<Long> roomIds) throws BadRequestException {
         List<Room> rooms = roomRepository.findAllById(roomIds);
-        RoomStatus roomStatus = roomStatusRepository.findByStatusName("reserved").orElseThrow(() -> new EnumConstantNotPresentException(RoomStatusEnum.class, RoomStatusEnum.Reserved.name()));
+        RoomStatus roomStatus = roomStatusRepository.findByStatusName(RoomStatusEnum.Reserved).orElseThrow(() -> new EnumConstantNotPresentException(RoomStatusEnum.class, RoomStatusEnum.Reserved.name()));
         for (Room room : rooms) {
-            if (room.getStatus().getStatusName().equals(RoomStatusEnum.Reserved.name())) {
+            if (room.getStatus().getStatusName().name().equalsIgnoreCase(RoomStatusEnum.Reserved.name())) {
                 throw new BadRequestException("Requested Room with id = " + room.getId() + ", Room number = " + room.getRoomNumber() + ", is already reserved");
             }
             room.setStatus(roomStatus);

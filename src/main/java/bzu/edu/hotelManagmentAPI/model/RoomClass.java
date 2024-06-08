@@ -20,19 +20,22 @@ public class RoomClass {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "class_name", nullable = false)
     @NotBlank(message = "class name is required")
-    @Size(max = 30, message = "class name must be at most 30 characters")
-    private String className;
+    private RoomClassEnum className;
+
     @Column(name = "num_beds")
     private Integer numBeds;
+
     @Column(nullable = false)
     @Min(value = 1, message = "Price must be greater than 0")
     private Float price;
 
-    public RoomClass(String className, Integer numBeds, Float price) {
+    public RoomClass(RoomClassEnum className, Integer numBeds, Float price) {
         this.className = className;
         this.numBeds = numBeds;
         this.price = price;
     }
 }
+

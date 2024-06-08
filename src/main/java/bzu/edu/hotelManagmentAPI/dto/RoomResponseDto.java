@@ -23,8 +23,8 @@ public class RoomResponseDto {
 
     public RoomResponseDto(Room roomEntity){
         this.id = roomEntity.getId();
-        this.status = roomEntity.getStatus().getStatusName();
-        this.className = roomEntity.getRoomClass().getClassName();
+        this.status = roomEntity.getStatus().getStatusName().name();
+        this.className = roomEntity.getRoomClass().getClassName().name();
         this.numBeds = roomEntity.getRoomClass().getNumBeds();
         this.price = roomEntity.getRoomClass().getPrice();
         this.floorNumber = roomEntity.getFloor().getFloorNumber();

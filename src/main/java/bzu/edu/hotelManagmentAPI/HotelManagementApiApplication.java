@@ -9,9 +9,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.Arrays;
-import java.util.List;
 
 @SpringBootApplication
 public class HotelManagementApiApplication {
@@ -30,16 +28,16 @@ public class HotelManagementApiApplication {
         return args -> {
             if (roomStatusRepository.count() == 0) {
                 roomStatusRepository.saveAll(Arrays.asList(
-                        new RoomStatus(RoomStatusEnum.Reserved.name()),
-                        new RoomStatus(RoomStatusEnum.Available.name())
+                        new RoomStatus(RoomStatusEnum.Reserved),
+                        new RoomStatus(RoomStatusEnum.Available)
                 ));
             }
 
             if (roomClassRepository.count() == 0) {
                 roomClassRepository.saveAll(Arrays.asList(
-                        new RoomClass("Standard", 2, 100.00f),
-                        new RoomClass("Deluxe", 3, 150.00f),
-                        new RoomClass("Suite", 4, 250.00f)
+                        new RoomClass(RoomClassEnum.DELUXE, 2, 100.00f),
+                        new RoomClass(RoomClassEnum.STANDARD, 3, 150.00f),
+                        new RoomClass(RoomClassEnum.SUITE, 4, 250.00f)
                 ));
             }
 

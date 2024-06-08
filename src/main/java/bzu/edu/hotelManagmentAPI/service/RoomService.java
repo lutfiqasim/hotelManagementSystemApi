@@ -8,13 +8,23 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 
 public interface RoomService {
-    CollectionModel<EntityModel<RoomResponseDto>> getAllRooms();
+    CollectionModel<EntityModel<RoomResponseDto>> getAllRooms(Integer page, Integer size);
 
-    CollectionModel<EntityModel<RoomResponseDto>> getAllRooms(Integer floor); //V2 only
+    /**
+     * @param floorNo the floor number (not the floor id)
+     * @param date the date of the desired booking
+     * @param size how many people the room can accommodate
+     * @return a collection of **available** rooms that match the given criteria
+     * Note: this method is only available in API V2
+     */
+    CollectionModel<EntityModel<RoomResponseDto>> getAllRooms(Integer floorNo, String date, Integer size ); //V2 only
 
-    CollectionModel<EntityModel<RoomResponseDto>> getRoomsBySize(Integer size); //V2 only
-
-    CollectionModel<EntityModel<RoomResponseDto>> getRoomsByDate(String date); //V2 and available rooms only 
+    /**
+     * @param size how many people the room can accommodate
+     * @return a collection of rooms that can accommodate the given number of people
+     * Note: this method is only available in API V2
+     */
+    CollectionModel<EntityModel<RoomResponseDto>> getRoomsBySize(Integer size, Integer page, Integer pageSize); //V2 only
 
     CollectionModel<EntityModel<RoomResponseDto>> getAvailableRooms();
 
