@@ -1,8 +1,8 @@
 package bzu.edu.hotelManagmentAPI.model;
 
+import bzu.edu.hotelManagmentAPI.enums.RoomStatusEnum;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,11 +19,12 @@ public class RoomStatus {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status_name", length = 50)
     @NotBlank(message = "status name must be included")
-    private String statusName;
+    private RoomStatusEnum statusName;
 
-    public RoomStatus(String statusName) {
+    public RoomStatus(RoomStatusEnum statusName) {
         this.statusName = statusName;
     }
 }

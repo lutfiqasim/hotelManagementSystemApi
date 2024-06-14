@@ -16,7 +16,6 @@ import bzu.edu.hotelManagmentAPI.repository.RoomRepository;
 import bzu.edu.hotelManagmentAPI.repository.RoomStatusRepository;
 import bzu.edu.hotelManagmentAPI.repository.UserRepository;
 import bzu.edu.hotelManagmentAPI.security.SecurityUtils;
-import bzu.edu.hotelManagmentAPI.service.ReservationService;
 import jakarta.validation.Valid;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,11 +26,13 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
+import bzu.edu.hotelManagmentAPI.service.ReservationService;
 @Service
 public class ReservationServiceImp implements ReservationService {
     private final ReservationRepository reservationRepository;
@@ -61,9 +62,16 @@ public class ReservationServiceImp implements ReservationService {
     }
 
     @Override
-    public CollectionModel<EntityModel<ReservationResponseDto>> getAllReservations() {
+    public Page<EntityModel<ReservationResponseDto>> getAllReservations(Integer page, Integer size, Long id, String name, LocalDate time){
         SecurityUtils.checkIfAdminAuthority();
-        throw new UnsupportedOperationException("Request not supported yet, contact support for more");
+        return reservationRepository.findWithIdNameDate(id, name, time, Pageable.ofSize(size).withPage(page)).map(reservationResponseAssembler::toModel);
+    }
+
+    @Override
+    public CollectionModel<EntityModel<ReservationResponseDto>> getAllReservations(Long id, String name, LocalDate time){
+        SecurityUtils.checkIfAdminAuthority();
+        List<EntityModel<ReservationResponseDto>> reservations = reservationRepository.findWithIdNameDate(id, name, time).stream().map(reservationResponseAssembler::toModel).collect(Collectors.toList());
+        return CollectionModel.of(reservations);
     }
 
     @Override
@@ -72,16 +80,6 @@ public class ReservationServiceImp implements ReservationService {
         reservation.setPaymentStatus("Paid");
         reservationRepository.save(reservation);
     }
-    
-    public Page<EntityModel<ReservationResponseDto>> getAllReservations(int page, int size) {
-        Pageable pageable = Pageable.ofSize(size).withPage(page);
-        Page<EntityModel<ReservationResponseDto>> reservations = reservationRepository.findAll(pageable).map(reservationResponseAssembler::toModel);
-        return reservations;
-    }
-
-    // @Override
-    // public ResponseEntity<?> getResevationAtDay
-
 
     @Override
     public EntityModel<ReservationResponseDto> getReservationById(Long id) {
@@ -113,14 +111,15 @@ public class ReservationServiceImp implements ReservationService {
     }
 
     @Override
-    public ResponseEntity<CollectionModel<EntityModel<ReservationResponseDto>>> getUserReservationsOnHold(Long userId) {
+    public CollectionModel<EntityModel<ReservationResponseDto>> getUserReservationsOnHold(Long userId) {
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         SecurityUtils.checkIfSameUserOrAdmin(user);
         List<Reservation> onHoldResrevations = reservationRepository.findByUserEntityAndPaymentStatus(user, "OnHold");
         if (onHoldResrevations.isEmpty()) {
-            return new ResponseEntity<>(CollectionModel.empty(), HttpStatus.NO_CONTENT);
+            return CollectionModel.empty();
         }
-        return new ResponseEntity<>(reservationResponseAssembler.toCollectionModel(onHoldResrevations), HttpStatus.OK);
+        return reservationResponseAssembler.toCollectionModel(onHoldResrevations);
+
 //        throw new UnsupportedOperationException("Request not supported yet, contact support for more");
 
     }
@@ -148,13 +147,33 @@ public class ReservationServiceImp implements ReservationService {
 
     private void reserveRoomsIfAvailable(List<Long> roomIds) throws BadRequestException {
         List<Room> rooms = roomRepository.findAllById(roomIds);
-        RoomStatus roomStatus = roomStatusRepository.findByStatusName("reserved").orElseThrow(() -> new EnumConstantNotPresentException(RoomStatusEnum.class, RoomStatusEnum.Reserved.name()));
+        RoomStatus roomStatus = roomStatusRepository.findByStatusName(RoomStatusEnum.Reserved).orElseThrow(() -> new EnumConstantNotPresentException(RoomStatusEnum.class, RoomStatusEnum.Reserved.name()));
         for (Room room : rooms) {
-            if (room.getStatus().getStatusName().equals(RoomStatusEnum.Reserved.name())) {
+            if (room.getStatus().getStatusName().name().equalsIgnoreCase(RoomStatusEnum.Reserved.name())) {
                 throw new BadRequestException("Requested Room with id = " + room.getId() + ", Room number = " + room.getRoomNumber() + ", is already reserved");
             }
             room.setStatus(roomStatus);
         }
         roomRepository.saveAll(rooms);
     }
+
+    // private void checkIfSameUserOrAdmin(UserEntity user) {
+    //     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    //     if (!auth.getName().equals(user.getEmailAddress())) {
+    //         checkIfAdminAuthority();
+    //     }
+    // }
+
+    // private static void checkIfAdminAuthority() {
+    //     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    //     if (auth == null || !HasAuthority.hasAuthority(auth, UserRole.ADMIN.name())) {
+    //         throw new AuthorizationServiceException("User Unauthorized");
+    //     }
+    // }
+
+    // @Override
+    // public CollectionModel<EntityModel<ReservationResponseDto>> getAllReservations(Integer id, String name, LocalDate time) {
+    //     CollectionModel<EntityModel<ReservationResponseDto>> reservations = reservationRepository.findWithIdNameDate(id, name, time).stream().map(reservationResponseAssembler::toModel).collect(Collectors.toList()).stream().collect(Collectors.collectingAndThen(Collectors.toList(), CollectionModel::of));
+    //     return reservations;
+    // }
 }

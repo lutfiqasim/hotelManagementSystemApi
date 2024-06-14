@@ -23,7 +23,11 @@ public class RoomUpdateDto {
     private Float price;
 
     @NotNull
-    @Positive
+    @Min(value = 1)
     private Integer floorNumber;
+
+    @NotNull
+    private String roomNumber;
+
 
 }
