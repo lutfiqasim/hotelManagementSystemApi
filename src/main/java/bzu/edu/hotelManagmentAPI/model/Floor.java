@@ -19,7 +19,11 @@ public class Floor {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "floor_number",nullable = false)
+    @Column(name = "floor_number", nullable = false)
     @Min(value = 1, message = "you should at least have two floors")
     private Integer floorNumber;
+
+    public Floor(Integer floorNumber) {
+        this.floorNumber = floorNumber;
+    }
 }

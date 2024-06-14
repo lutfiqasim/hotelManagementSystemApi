@@ -1,5 +1,6 @@
 package bzu.edu.hotelManagmentAPI.exception;
 
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AuthorizationServiceException;
@@ -93,6 +94,36 @@ public class ControllerAdvisor {
                 "Check credentials"
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(UnsupportedOperationException.class)
+    public ResponseEntity<ErrorResponse> unsupportedOperationHandler(Exception e) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.NOT_IMPLEMENTED.getReasonPhrase(),
+                e.getMessage()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_IMPLEMENTED);
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ErrorResponse> badRequestExceptionHandler(BadRequestException e) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                e.getMessage()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(EnumConstantNotPresentException.class)
+    public ResponseEntity<ErrorResponse> EnumConstantNotPresentExceptionHandler(EnumConstantNotPresentException e) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.I_AM_A_TEAPOT.getReasonPhrase(),
+                e.getMessage()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.I_AM_A_TEAPOT);
     }
 
     @ExceptionHandler(Exception.class)

@@ -16,7 +16,9 @@ public class Room {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    @ManyToOne
+    @JoinColumn(name = "floor_id")
+    private Floor floor;
     @ManyToOne()
     @JoinColumn(name = "room_class_id")
     private RoomClass roomClass;
@@ -27,4 +29,11 @@ public class Room {
 
     @Column(name = "room_number")
     private String roomNumber;
+
+    public Room(Floor floor, RoomClass roomClass, RoomStatus status, String roomNumber) {
+        this.floor = floor;
+        this.roomClass = roomClass;
+        this.status = status;
+        this.roomNumber = roomNumber;
+    }
 }

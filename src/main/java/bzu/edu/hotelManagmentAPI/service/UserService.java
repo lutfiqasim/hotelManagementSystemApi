@@ -21,6 +21,13 @@ public interface UserService {
      * @return an entity model containing the user details
      */
     public abstract EntityModel<UserEntityResponse> getUserById(Long id);
+    
+    /**
+     * Fetches a user by their email.
+     * @param email the email of the user to fetch
+     * @return an entity model containing the user details
+     */
+    public abstract EntityModel<UserEntityResponse> getUserByEmail(String email);
 
     /**
      * Fetches all customer users.
