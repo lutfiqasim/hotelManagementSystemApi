@@ -12,12 +12,12 @@ public interface RoomService {
 
     /**
      * @param floorNo the floor number (not the floor id)
-     * @param date the date of the desired booking
-     * @param size how many people the room can accommodate
+     * @param date    the date of the desired booking
+     * @param size    how many people the room can accommodate
      * @return a collection of **available** rooms that match the given criteria
      * Note: this method is only available in API V2
      */
-    CollectionModel<EntityModel<RoomResponseDto>> getAllRooms(Integer floorNo, String date, Integer size ); //V2 only
+    CollectionModel<EntityModel<RoomResponseDto>> getAllRoomsPageable(Integer floorNo, int pageNumber, int pageSize); //V2 only
 
     /**
      * @param size how many people the room can accommodate

@@ -17,11 +17,13 @@ import bzu.edu.hotelManagmentAPI.repository.RoomRepository;
 import bzu.edu.hotelManagmentAPI.repository.RoomStatusRepository;
 import bzu.edu.hotelManagmentAPI.security.SecurityUtils;
 import bzu.edu.hotelManagmentAPI.service.RoomService;
-import bzu.edu.hotelManagmentAPI.utils.LocalDateFormatter;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.CollectionModel;
@@ -47,10 +49,10 @@ public class RoomServiceImp implements RoomService {
 
     @Override
     public CollectionModel<EntityModel<RoomResponseDto>> getAllRooms(Integer page, Integer size) {
-        if (page == null){
+        if (page == null) {
             page = 0;
         }
-        if (size == null){
+        if (size == null) {
             size = 20;
         }
         Pageable pageable = PageRequest.of(page, size);
@@ -61,17 +63,27 @@ public class RoomServiceImp implements RoomService {
     }
 
     @Override
-    public CollectionModel<EntityModel<RoomResponseDto>> getAllRooms(Integer floorNo, String date, Integer size) {
-        LocalDate dateObj = LocalDateFormatter.parseDate(date);
-        List<EntityModel<RoomResponseDto>> rooms = roomRepository.findAll(floorNo, dateObj, size).stream().map(roomResponseAssembler::toModel).collect(Collectors.toList());
+    public CollectionModel<EntityModel<RoomResponseDto>> getAllRoomsPageable(Integer floorNo, int pageNumber, int pageSize) {
+//        LocalDate localDate = date != null ? LocalDate.parse(date) : null;
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
 
-        return CollectionModel.of(rooms);
+        Page<Room> roomsPage = roomRepository.findAllPageable(floorNo, pageable);
+
+        return roomResponseAssembler.toCollectionModel(roomsPage.getContent());
+//                .stream().
+//                .map(this::convertToDto)
+//                .map(roomDto -> EntityModel.of(roomDto,
+//                        WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(RoomController.class).getRoomById(roomDto.getId())).withSelfRel(),
+//                        WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(RoomController.class).getAllRooms(floorNo, date, size)).withRel("rooms")))
+//                .collect(Collectors.toList());
+//        return CollectionModel.of(roomResponseDtos,
+//                WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(RoomController.class).getAllRooms(floorNo, date, size)).withSelfRel());
     }
 
 
     @Override
     public CollectionModel<EntityModel<RoomResponseDto>> getAvailableRooms() {
-       return CollectionModel.of(roomRepository.findAll().stream().map(roomResponseAssembler::toModel).collect(Collectors.toList()));
+        return roomResponseAssembler.toCollectionModel(roomRepository.findAvailableRooms());
     }
 
     @Override
@@ -84,27 +96,26 @@ public class RoomServiceImp implements RoomService {
     @Override
     public EntityModel<RoomResponseDto> addNewRoom(RoomRequestDto roomRequestDto) {
         SecurityUtils.checkIfAdminAuthority();
-        try{
+        try {
             Floor floor = floorRepository.findByFloorNumber(roomRequestDto.getFloorNumber());
-            if (floor == null){
+            if (floor == null) {
                 throw new RuntimeException("Floor " + roomRequestDto.getFloorNumber() + " not found, add floor first");
             }
             RoomClass roomClass = roomClassRepository.findByClassName(roomRequestDto.getClassName());
-            if (roomClass == null){
+            if (roomClass == null) {
                 throw new RuntimeException("Room class " + roomRequestDto.getClassName() + " not found, add room class first");
             }
             RoomStatus roomStatus;
-            if (roomRequestDto.getStatus().equals("AVAILABLE")){
+            if (roomRequestDto.getStatus().equals("AVAILABLE")) {
                 roomStatus = roomStatusRepository.findByStatusName(RoomStatusEnum.Available).orElseThrow(() ->
-                  new EnumConstantNotPresentException(RoomStatusEnum.class, RoomStatusEnum.Available.name())); 
-            }
-            else {
+                        new EnumConstantNotPresentException(RoomStatusEnum.class, RoomStatusEnum.Available.name()));
+            } else {
                 roomStatus = roomStatusRepository.findByStatusName(RoomStatusEnum.Maintenance).orElseThrow(() ->
-                  new EnumConstantNotPresentException(RoomStatusEnum.class, RoomStatusEnum.Maintenance.name()));
+                        new EnumConstantNotPresentException(RoomStatusEnum.class, RoomStatusEnum.Maintenance.name()));
             }
             Room room = new Room(floor, roomClass, roomStatus, roomRequestDto.getRoomNumber());
             return roomResponseAssembler.toModel(roomRepository.save(room));
-        } catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage()); //TODO: remove this line
             throw new RuntimeException("Failed to add new room!");
         }
@@ -120,14 +131,14 @@ public class RoomServiceImp implements RoomService {
     public EntityModel<RoomResponseDto> updateRoom(Long id, RoomUpdateDto roomUpdateDto) {
         SecurityUtils.checkIfAdminAuthority();
         return roomRepository.findById(id).map(room -> {
-            try{
+            try {
                 Floor floor = floorRepository.findByFloorNumber(roomUpdateDto.getFloorNumber());
-                if (floor == null){
-                   throw new RuntimeException("Floor " + roomUpdateDto.getFloorNumber()  + " not found, add floor first");
+                if (floor == null) {
+                    throw new RuntimeException("Floor " + roomUpdateDto.getFloorNumber() + " not found, add floor first");
                 }
                 room.setFloor(floor);
                 RoomClass roomClass = roomClassRepository.findByClassName(roomUpdateDto.getClassName());
-                if (roomClass == null){
+                if (roomClass == null) {
                     throw new RuntimeException("Room class " + roomUpdateDto.getClassName() + " not found, add room class first");
                 }
                 //** updating whole class of rooms here not individual rooms! **//
@@ -137,75 +148,78 @@ public class RoomServiceImp implements RoomService {
                 room.setRoomClass(roomClass);
 
                 room.setRoomNumber(roomUpdateDto.getRoomNumber());
-                if (roomUpdateDto.getStatus().equals("AVAILABLE")){
+                if (roomUpdateDto.getStatus().equals("AVAILABLE")) {
                     RoomStatus roomStatus = roomStatusRepository.findByStatusName(RoomStatusEnum.Available).orElseThrow(() -> new EnumConstantNotPresentException(RoomStatusEnum.class, RoomStatusEnum.Available.name()));
                     room.setStatus(roomStatus);
-                }
-                else {
+                } else {
                     RoomStatus roomStatus = roomStatusRepository.findByStatusName(RoomStatusEnum.Reserved).orElseThrow(() -> new EnumConstantNotPresentException(RoomStatusEnum.class, RoomStatusEnum.Reserved.name()));
                     room.setStatus(roomStatus);
+                }
+                return roomResponseAssembler.toModel(roomRepository.save(room));
+            } catch (Exception e) {
+                System.out.println(e.getMessage()); //TODO: remove this line
+                throw new RuntimeException("Failed to update room!");
             }
-            return roomResponseAssembler.toModel(roomRepository.save(room));
-        } catch (Exception e){
-            System.out.println(e.getMessage()); //TODO: remove this line
-            throw new RuntimeException("Failed to update room!");
-        }
         }).orElseThrow(() -> new ResourceNotFoundException("Room not found!"));
-    
+
     }
 
     @Override
     public EntityModel<RoomResponseDto> partialUpdateRoom(Long id, RoomPartialUpdateDto roomPartialUpdateDto) {
         SecurityUtils.checkIfAdminAuthority();
         return roomRepository.findById(id).map(room -> {
-            if (roomPartialUpdateDto.getFloorNumber() != null){
+            if (roomPartialUpdateDto.getFloorNumber() != null) {
                 Floor floor = floorRepository.findByFloorNumber(roomPartialUpdateDto.getFloorNumber());
-                if (floor == null){
-                   throw new RuntimeException("Floor " + roomPartialUpdateDto.getFloorNumber()  + " not found, add floor first");
+                if (floor == null) {
+                    throw new RuntimeException("Floor " + roomPartialUpdateDto.getFloorNumber() + " not found, add floor first");
                 }
                 room.setFloor(floor);
             }
-            if (roomPartialUpdateDto.getNumBeds() != null){
+            if (roomPartialUpdateDto.getNumBeds() != null) {
                 RoomClass roomClass = roomClassRepository.findByClassName(roomPartialUpdateDto.getClassName());
-                if (roomClass == null){
+                if (roomClass == null) {
                     throw new RuntimeException("Room class " + roomPartialUpdateDto.getClassName() + " not found, add room class first");
                 }
                 //** updating whole class of rooms here not individual rooms! **//
-                if (roomPartialUpdateDto.getNumBeds() != null){
+                if (roomPartialUpdateDto.getNumBeds() != null) {
                     roomClass.setNumBeds(roomPartialUpdateDto.getNumBeds());
                 }
-                if (roomPartialUpdateDto.getPrice() != null){
+                if (roomPartialUpdateDto.getPrice() != null) {
                     roomClass.setPrice(roomPartialUpdateDto.getPrice());
                 }
                 roomClassRepository.save(roomClass);
                 room.setRoomClass(roomClass);
             }
-            if (roomPartialUpdateDto.getRoomNumber() != null){
+            if (roomPartialUpdateDto.getRoomNumber() != null) {
                 room.setRoomNumber(roomPartialUpdateDto.getRoomNumber());
             }
-            if (roomPartialUpdateDto.getStatus() != null){
-                if (roomPartialUpdateDto.getStatus().equals("AVAILABLE")){
+            if (roomPartialUpdateDto.getStatus() != null) {
+                if (roomPartialUpdateDto.getStatus().equals("AVAILABLE")) {
                     RoomStatus roomStatus = roomStatusRepository.findByStatusName(RoomStatusEnum.Available).orElseThrow(() -> new EnumConstantNotPresentException(RoomStatusEnum.class, RoomStatusEnum.Available.name()));
                     room.setStatus(roomStatus);
-                }
-                else {
+                } else {
                     RoomStatus roomStatus = roomStatusRepository.findByStatusName(RoomStatusEnum.Reserved).orElseThrow(() -> new EnumConstantNotPresentException(RoomStatusEnum.class, RoomStatusEnum.Reserved.name()));
                     room.setStatus(roomStatus);
                 }
             }
             return roomResponseAssembler.toModel(roomRepository.save(room));
         }).orElseThrow(() -> new ResourceNotFoundException("Room not found"));
-        }
+    }
 
     @Override
     public CollectionModel<EntityModel<RoomResponseDto>> getRoomsBySize(Integer size, Integer page, Integer pageSize) {
-        Pageable pageable = PageRequest.of(page, pageSize);
-        if (size == null){
-            size = 20;
-        }
-        if (page == null){
-            page = 0;
-        }
-       return CollectionModel.of(roomRepository.findAllBySize(size, pageable).stream().map(roomResponseAssembler::toModel).collect(Collectors.toList()));
+        throw new UnsupportedOperationException();
+//        return null;
     }
+//    @Override
+//    public CollectionModel<EntityModel<RoomResponseDto>> getRoomsBySize(Integer size, Integer page, Integer pageSize) {
+//        Pageable pageable = PageRequest.of(page, pageSize);
+//        if (size == null) {
+//            size = 20;
+//        }
+//        if (page == null) {
+//            page = 0;
+//        }
+//        return CollectionModel.of(roomRepository.findAllBySize(size, pageable).stream().map(roomResponseAssembler::toModel).collect(Collectors.toList()));
+//    }
 }

@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Set;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Setter
@@ -22,6 +24,8 @@ public class Floor {
     @Column(name = "floor_number", nullable = false)
     @Min(value = 1, message = "you should at least have two floors")
     private Integer floorNumber;
+    @OneToMany(mappedBy = "floor")
+    private Set<Room> rooms;
 
     public Floor(Integer floorNumber) {
         this.floorNumber = floorNumber;

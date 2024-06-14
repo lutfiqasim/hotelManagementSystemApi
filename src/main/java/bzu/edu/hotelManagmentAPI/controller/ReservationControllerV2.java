@@ -17,21 +17,21 @@ import bzu.edu.hotelManagmentAPI.service.ReservationService;
 @RestController
 @RequestMapping(value = "/api/reservation", headers = "X-API-Version=2")
 
-public class ReservationControllerV2 extends ReservationController{
+public class ReservationControllerV2 extends ReservationController {
 
     public ReservationControllerV2(ReservationService reservationService) {
         super(reservationService);
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<?> getAllReservations( @RequestParam(required = false) Integer page, @RequestParam(required = false) Integer size, @RequestParam(required = false) LocalDate time,  @RequestParam(required = false) String name, @RequestParam(required =  false) Long id) {
-        if (page == null){
-            page = 0;
-        }
-        if (size == null){
-            size = 20;
-        }
-        return ResponseEntity.ok(super.reservationService.getAllReservations(page, size, id, name, time));
-    }
+//    @PostMapping(value = "/api/reservation/user/{userId}", headers = "X-API-Version=2")
+//    public ResponseEntity<?> getAllReservations(@RequestParam(required = false) Integer page, @RequestParam(required = false) Integer size, @RequestParam(required = false) LocalDate time, @RequestParam(required = false) String name, @RequestParam(required = false) Long id) {
+//        if (page == null) {
+//            page = 0;
+//        }
+//        if (size == null) {
+//            size = 20;
+//        }
+//        return ResponseEntity.ok(super.reservationService.getAllReservations(page, size, id, name, time));
+//    }
 
 }
