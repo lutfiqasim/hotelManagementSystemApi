@@ -13,8 +13,7 @@ public class LocalDateFormatter {
         LocalDate dateObj = null;
         try {
             dateObj = LocalDate.parse(date, dateFormatter);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new IllegalArgumentException("Invalid date format. Please use yyyy-MM-dd");
         }
         return dateObj;
@@ -24,8 +23,7 @@ public class LocalDateFormatter {
         LocalDateTime dateObj = null;
         try {
             dateObj = LocalDateTime.parse(dateTime, dateFormatter);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new IllegalArgumentException("Invalid date format. Please use yyyy-MM-dd HH:mm");
         }
         return dateObj;

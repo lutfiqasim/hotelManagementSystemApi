@@ -9,6 +9,7 @@ import bzu.edu.hotelManagmentAPI.exception.ResourceNotFoundException;
 import bzu.edu.hotelManagmentAPI.model.UserEntity;
 import bzu.edu.hotelManagmentAPI.repository.UserRepository;
 import bzu.edu.hotelManagmentAPI.security.HasAuthority;
+import bzu.edu.hotelManagmentAPI.security.SecurityUtils;
 import bzu.edu.hotelManagmentAPI.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
@@ -40,7 +41,7 @@ public class UserServiceImp implements UserService {
 
     @Override
     public CollectionModel<EntityModel<UserEntityResponse>> getAllAdmins() {
-        checkIfAdminAuthority();
+//        checkIfAdminAuthority();
         List<UserEntity> users = userRepository.findByRole(UserRole.ADMIN);
         if (users.isEmpty()) {
             return CollectionModel.empty();
@@ -55,11 +56,8 @@ public class UserServiceImp implements UserService {
     @Override
     public EntityModel<UserEntityResponse> getUserById(Long id) {
         UserEntity user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && (HasAuthority.hasAuthority(auth, UserRole.ADMIN.name()) || auth.getName().equals(user.getEmailAddress()))) {
-            return userResponseAssembler.toModel(user);
-        }
-        throw new AuthorizationServiceException("User unAuthorized");
+        SecurityUtils.checkIfSameUserOrAdmin(user);
+        return userResponseAssembler.toModel(user);
     }
 
     @Override
@@ -74,7 +72,6 @@ public class UserServiceImp implements UserService {
 
     @Override
     public CollectionModel<EntityModel<UserEntityResponse>> getAllCustomers() {
-        checkIfAdminAuthority();
         List<UserEntity> customers = userRepository.findByRole(UserRole.CUSTOMER);
         if (customers.isEmpty()) {
             return CollectionModel.empty();
@@ -84,7 +81,6 @@ public class UserServiceImp implements UserService {
 
     @Override
     public CollectionModel<EntityModel<UserEntityResponse>> getAllUsers() {
-        checkIfAdminAuthority();
         List<UserEntity> users = userRepository.findAll();
         if (users.isEmpty()) {
             return CollectionModel.empty();
@@ -94,18 +90,15 @@ public class UserServiceImp implements UserService {
 
     @Override
     public EntityModel<UserEntityResponse> updateUser(Long id, UserUpdateDto userUpdateDto) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        UserEntity loggedInUser = userRepository.findByEmailAddress(auth.getName())
-                .orElseThrow(() -> new ResourceNotFoundException("Logged in user not found"));
+//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//        UserEntity loggedInUser = userRepository.findByEmailAddress(auth.getName())
+//                .orElseThrow(() -> new ResourceNotFoundException("Logged in user not found"));
 
         UserEntity user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        boolean isAdmin = loggedInUser.getRoles().stream().anyMatch(role -> role.getName().equals(UserRole.ADMIN));
-//        System.out.println("IS AMDI: " + isAdmin);
-        if (!isAdmin && !loggedInUser.getId().equals(user.getId())) {
-            throw new AuthorizationServiceException("User Unauthorized");
-        }
+        SecurityUtils.checkIfSameUserOrAdmin(user);
+
 
         if (StringUtils.hasText(userUpdateDto.getFirstName())) {
             user.setFirstName(userUpdateDto.getFirstName());
@@ -135,7 +128,8 @@ public class UserServiceImp implements UserService {
     public EntityModel<UserEntityResponse> patchUser(Long id, UserPatchDto userPatchDto) {
         UserEntity existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
+        //only allowed to update if same user or is an admin
+        SecurityUtils.checkIfSameUserOrAdmin(existingUser);
         if (StringUtils.hasText(userPatchDto.getFirstName())) {
             existingUser.setFirstName(userPatchDto.getFirstName());
         }
@@ -162,18 +156,9 @@ public class UserServiceImp implements UserService {
 
     @Override
     public void deleteUser(Long id) {
-        checkIfAdminAuthority();
         if (!userRepository.existsById(id)) {
             throw new ResourceNotFoundException("User not found");
         }
         userRepository.deleteById(id);
-    }
-
-
-    private static void checkIfAdminAuthority() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !HasAuthority.hasAuthority(auth, UserRole.ADMIN.name())) {
-            throw new AuthorizationServiceException("User Unauthorized");
-        }
     }
 }
