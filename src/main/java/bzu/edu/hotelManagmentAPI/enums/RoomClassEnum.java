@@ -1,4 +1,4 @@
-package bzu.edu.hotelManagmentAPI.model;
+package bzu.edu.hotelManagmentAPI.enums;
 
 
 public enum RoomClassEnum {

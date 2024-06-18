@@ -2,15 +2,28 @@ package bzu.edu.hotelManagmentAPI.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.time.LocalDate;
+
+import org.springframework.lang.Nullable;
+import lombok.Data;
+
+@Data
 public class ReservationPaymentDto {
+
+    @JsonProperty("payment_date")
+    private LocalDate paymentDate;
+
     @JsonProperty("reservation_id")
     private Long reservationId;
 
-    public Long getReservationId() {
-        return reservationId;
-    }
+    @JsonProperty("payment_method")
+    private String paymentMethod;
 
-    public void setReservationId(Long reservationId) {
-        this.reservationId = reservationId;
-    }
+    @JsonProperty("payment_status")
+    private String paymentStatus;
+
+    private Float amount;
+
+    @Nullable //null for create
+    private Long id;
 }

@@ -3,6 +3,7 @@ package bzu.edu.hotelManagmentAPI.assembler;
 import bzu.edu.hotelManagmentAPI.controller.ReservationController;
 import bzu.edu.hotelManagmentAPI.controller.ReservationControllerV2;
 import bzu.edu.hotelManagmentAPI.controller.UserController;
+import bzu.edu.hotelManagmentAPI.dto.ReservationPaymentDto;
 import bzu.edu.hotelManagmentAPI.dto.ReservationResponseDto;
 import bzu.edu.hotelManagmentAPI.model.Reservation;
 import org.springframework.hateoas.EntityModel;
@@ -28,9 +29,16 @@ public class ReservationResponseAssembler implements RepresentationModelAssemble
                 entity.getCheckoutDate(),
                 entity.getNumAdults(),
                 entity.getNumChildren(),
-                entity.getPaymentStatus(),
                 entity.getPaymentAmount(),
                 entity.getUserEntity().getId());
+                if(entity.getPayment() != null) {
+                    ReservationPaymentDto paymentDto = new ReservationPaymentDto();
+                    paymentDto.setPaymentMethod(entity.getPayment().getPaymentMethod().name());
+                    paymentDto.setPaymentStatus(entity.getPayment().getPaymentStatus().name());
+                    paymentDto.setAmount(entity.getPayment().getAmount());
+                    paymentDto.setId(entity.getPayment().getId());
+                    dto.setPayment(paymentDto);
+                }
         return EntityModel.of(dto);
     }
 }

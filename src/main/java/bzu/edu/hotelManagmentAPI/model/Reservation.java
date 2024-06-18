@@ -12,6 +12,8 @@ import lombok.Setter;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.lang.Nullable;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -36,15 +38,18 @@ public class Reservation {
     @Min(value = 1, message = "At least one adult is required to reserve a room")
     private Integer numAdults;
 
-    @Column(name = "num_children")
-    private Integer numChildren;
-
-    @Column(name = "payment_status")
-    private String paymentStatus = "OnHold";
+    @Column(name = "num_children") 
+    private Integer numChildren; //why do we need this??
 
     @ManyToOne()
     @JoinColumn(name = "user_id")
     private UserEntity userEntity;
+
+    
+    @Nullable //add payment after the reservation is created
+    @OneToOne(mappedBy = "reservation", cascade = CascadeType.ALL)
+    @JoinColumn(name = "payment_id")
+    private Payment payment;
 
     @OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL)
     private List<ReservationRoom> reservationRooms;

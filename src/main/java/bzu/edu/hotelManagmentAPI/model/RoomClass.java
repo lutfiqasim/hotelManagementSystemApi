@@ -1,5 +1,6 @@
 package bzu.edu.hotelManagmentAPI.model;
 
+import bzu.edu.hotelManagmentAPI.enums.RoomClassEnum;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;

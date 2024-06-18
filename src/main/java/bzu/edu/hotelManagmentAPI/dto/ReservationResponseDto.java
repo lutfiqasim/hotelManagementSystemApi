@@ -4,6 +4,10 @@ import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import bzu.edu.hotelManagmentAPI.model.Reservation;
+
+import org.springframework.lang.Nullable;
+
 public class ReservationResponseDto {
     private Long id;
 
@@ -22,22 +26,34 @@ public class ReservationResponseDto {
     @JsonProperty("payment_amount")
     private Float paymentAmount;
 
-    @JsonProperty("payment_status")
-    private String paymentStatus;
+    // @JsonProperty("payment_status")
+    // private String paymentStatus;
 
     @JsonProperty("user_id")
     private Long userId;
 
+    @Nullable //null when browsing reservation. Not null when booking
+    ReservationPaymentDto payment;
 
-    public ReservationResponseDto(Long id, LocalDate checkinDate, LocalDate checkoutDate, Integer numAdults, Integer numChildren, String paymentStatus, Float paymentAmount, Long userId) {
+    public ReservationResponseDto(Long id, LocalDate checkinDate, LocalDate checkoutDate, Integer numAdults, Integer numChildren, Float paymentAmount, Long userId) {
         this.id = id;
         this.checkinDate = checkinDate;
         this.checkoutDate = checkoutDate;
         this.numAdults = numAdults;
         this.numChildren = numChildren;
-        this.paymentStatus = paymentStatus;
         this.paymentAmount = paymentAmount;
         this.userId = userId;
+    }
+
+    public ReservationResponseDto(Long id, LocalDate checkinDate, LocalDate checkoutDate, Integer numAdults, Integer numChildren, Float paymentAmount, Long userId, ReservationPaymentDto payment) {
+        this.id = id;
+        this.checkinDate = checkinDate;
+        this.checkoutDate = checkoutDate;
+        this.numAdults = numAdults;
+        this.numChildren = numChildren;
+        this.paymentAmount = paymentAmount;
+        this.userId = userId;
+        this.payment = payment;
     }
 
     // Getters and setters
@@ -89,13 +105,13 @@ public class ReservationResponseDto {
         this.paymentAmount = paymentAmount;
     }
 
-    public String getPaymentStatus() {
-        return paymentStatus;
-    }
+    // public String getPaymentStatus() {
+    //     return paymentStatus;
+    // }
 
-    public void setPaymentStatus(String paymentStatus) {
-        this.paymentStatus = paymentStatus;
-    }
+    // public void setPaymentStatus(String paymentStatus) {
+    //     this.paymentStatus = paymentStatus;
+    // }
 
     public Long getUserId() {
         return userId;
@@ -103,5 +119,13 @@ public class ReservationResponseDto {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public ReservationPaymentDto getPayment() {
+        return payment;
+    }
+
+    public void setPayment(ReservationPaymentDto payment) {
+        this.payment = payment;
     }
 }

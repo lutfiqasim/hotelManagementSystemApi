@@ -1,5 +1,6 @@
 package bzu.edu.hotelManagmentAPI;
 
+import bzu.edu.hotelManagmentAPI.enums.RoomClassEnum;
 import bzu.edu.hotelManagmentAPI.enums.RoomStatusEnum;
 import bzu.edu.hotelManagmentAPI.enums.UserRole;
 import bzu.edu.hotelManagmentAPI.model.*;

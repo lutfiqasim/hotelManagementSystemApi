@@ -4,6 +4,8 @@ import bzu.edu.hotelManagmentAPI.dto.ReservationPaymentDto;
 import bzu.edu.hotelManagmentAPI.dto.ReservationRequestDto;
 import bzu.edu.hotelManagmentAPI.dto.ReservationResponseDto;
 import bzu.edu.hotelManagmentAPI.dto.ReservationUpdateDto;
+import jakarta.validation.Valid;
+
 import java.time.LocalDate;
 import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
@@ -21,6 +23,8 @@ public interface ReservationService {
     void payForReservation(ReservationPaymentDto reservationPaymentDto);
 
     EntityModel<ReservationResponseDto> getReservationById(Long id);
+
+    EntityModel<ReservationResponseDto> reviewReservation(@Valid ReservationRequestDto reservationRequestDto) throws BadRequestException;
 
     EntityModel<ReservationResponseDto> createReservation(ReservationRequestDto reservationRequestDto) throws BadRequestException;
 
