@@ -126,7 +126,6 @@ public class ReservationServiceImp implements ReservationService {
             throw new BadRequestException("Invalid Payment Method");
         }
         payment.setAmount(reservation.getPaymentAmount());
-        payment.setReservation(reservation);
         reservation.setPayment(payment);
         Reservation savedReservation = reservationRepository.save(reservation);
         //TODO: link to payment
@@ -147,7 +146,7 @@ public class ReservationServiceImp implements ReservationService {
     public CollectionModel<EntityModel<ReservationResponseDto>> getUserReservationsOnHold(Long userId) {
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         SecurityUtils.checkIfSameUserOrAdmin(user);
-        List<Reservation> onHoldReservations = reservationRepository.findByUserEntityAndPaymentStatus(user, "OnHold");
+        List<Reservation> onHoldReservations = reservationRepository.findByUserEntityAndPaymentStatus(user, PaymentStatus.OnHold);
         if (onHoldReservations.isEmpty()) {
             return CollectionModel.empty();
         }
@@ -158,6 +157,7 @@ public class ReservationServiceImp implements ReservationService {
     public CollectionModel<EntityModel<ReservationResponseDto>> getUpcomingReservations(Long userId) {
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         SecurityUtils.checkIfSameUserOrAdmin(user);
+        //TODO: check status exception
         List<Reservation> upcomingReservations = reservationRepository.findByUserEntityIdAndCheckinDateAfter(user, LocalDate.now());
         if (upcomingReservations.isEmpty()) {
             return CollectionModel.empty();
