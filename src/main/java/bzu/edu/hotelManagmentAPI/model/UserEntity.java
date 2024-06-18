@@ -43,6 +43,7 @@ public class UserEntity {
 
     @NotBlank(message = "Password is required")
     private String password;
+    
     //fetch type: always get roles
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),

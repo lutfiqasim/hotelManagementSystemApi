@@ -1,5 +1,7 @@
 package bzu.edu.hotelManagmentAPI.configuration;
 
+import bzu.edu.hotelManagmentAPI.enums.PaymentMethod;
+import bzu.edu.hotelManagmentAPI.enums.PaymentStatus;
 import bzu.edu.hotelManagmentAPI.enums.RoomClassEnum;
 import bzu.edu.hotelManagmentAPI.enums.RoomStatusEnum;
 import bzu.edu.hotelManagmentAPI.enums.UserRole;
@@ -37,6 +39,8 @@ public class SampleDataLoader {
     private RoomStatusRepository roomStatusRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired 
+    private PaymentRepository paymentRepository;
 
 
     @Transactional
@@ -89,8 +93,11 @@ public class SampleDataLoader {
             user.getRoles().add(userRole);
             userRepository.save(user);
 
+            Payment payment = new Payment(PaymentMethod.Cash, PaymentStatus.Paid);
+            Payment SavedPayment  = paymentRepository.save(payment);
+            
             // Insert Reservations
-            Reservation reservation = new Reservation(LocalDate.now(), LocalDate.now().plusDays(3), 2, 0, "OnHold", user);
+            Reservation reservation = new Reservation(LocalDate.now(), LocalDate.now().plusDays(3), 2, 0, SavedPayment,  user);
             reservationRepository.save(reservation);
 
             // Insert ReservationRooms

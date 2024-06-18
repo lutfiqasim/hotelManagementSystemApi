@@ -1,5 +1,6 @@
 package bzu.edu.hotelManagmentAPI.dto;
 
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -30,6 +31,10 @@ public class ReservationRequestDto {
     
     @NotNull
     private Long userId;
+
     @NotNull
-    private List<Long> roomIds;
+    private List<Long> roomIds; //why list???
+
+    private ReservationPaymentDto payment;
+
 }

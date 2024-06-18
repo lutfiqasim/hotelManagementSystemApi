@@ -1,5 +1,6 @@
 package bzu.edu.hotelManagmentAPI.repository;
 
+import bzu.edu.hotelManagmentAPI.enums.PaymentStatus;
 import bzu.edu.hotelManagmentAPI.model.Reservation;
 import bzu.edu.hotelManagmentAPI.model.UserEntity;
 import org.springframework.data.domain.Page;
@@ -21,7 +22,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     List<Reservation> findWithIdNameDate(Long id, String name, LocalDate date);
 
     // find reservations by user Id and payment status
-    List<Reservation> findByUserEntityAndPaymentStatus(UserEntity userEntity, String paymentStatus);
+    // List<Reservation> findByUserEntityAndPaymentStatus(UserEntity userEntity, PaymentStatus paymentStatus);
 
     // find upcoming reservations by user ID and check-in date
     List<Reservation> findByUserEntityIdAndCheckinDateAfter(UserEntity userEntity, LocalDate date);

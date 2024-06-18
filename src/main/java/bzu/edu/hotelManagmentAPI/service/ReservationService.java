@@ -1,6 +1,11 @@
 package bzu.edu.hotelManagmentAPI.service;
 
-import bzu.edu.hotelManagmentAPI.dto.*;
+import bzu.edu.hotelManagmentAPI.dto.ReservationInvoicesResponse;
+import bzu.edu.hotelManagmentAPI.dto.ReservationPaymentDto;
+import bzu.edu.hotelManagmentAPI.dto.ReservationRequestDto;
+import bzu.edu.hotelManagmentAPI.dto.ReservationResponseDto;
+import bzu.edu.hotelManagmentAPI.dto.ReservationUpdateDto;
+import jakarta.validation.Valid;
 
 import java.time.LocalDate;
 
@@ -20,6 +25,8 @@ public interface ReservationService {
     void payForReservation(ReservationPaymentDto reservationPaymentDto);
 
     EntityModel<ReservationResponseDto> getReservationById(Long id);
+
+    EntityModel<ReservationResponseDto> reviewReservation(@Valid ReservationRequestDto reservationRequestDto) throws BadRequestException;
 
     EntityModel<ReservationResponseDto> createReservation(ReservationRequestDto reservationRequestDto) throws BadRequestException;
 

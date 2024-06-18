@@ -32,9 +32,4 @@ public class RoomResponseAssembler implements RepresentationModelAssembler<Room,
         return entityModel;
     }
 
-    @Override
-    public CollectionModel<EntityModel<RoomResponseDto>> toCollectionModel(Iterable<? extends Room> entities) {
-        return RepresentationModelAssembler.super.toCollectionModel(entities);
-    }
-
 }
