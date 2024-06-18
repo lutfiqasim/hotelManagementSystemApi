@@ -1,10 +1,8 @@
 package bzu.edu.hotelManagmentAPI.service.ReservationServiceImp;
 
 import bzu.edu.hotelManagmentAPI.assembler.ReservationResponseAssembler;
-import bzu.edu.hotelManagmentAPI.dto.ReservationPaymentDto;
-import bzu.edu.hotelManagmentAPI.dto.ReservationRequestDto;
-import bzu.edu.hotelManagmentAPI.dto.ReservationResponseDto;
-import bzu.edu.hotelManagmentAPI.dto.ReservationUpdateDto;
+import bzu.edu.hotelManagmentAPI.controller.ReservationController;
+import bzu.edu.hotelManagmentAPI.dto.*;
 import bzu.edu.hotelManagmentAPI.enums.RoomStatusEnum;
 import bzu.edu.hotelManagmentAPI.exception.ResourceNotFoundException;
 import bzu.edu.hotelManagmentAPI.model.Reservation;
@@ -23,16 +21,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import bzu.edu.hotelManagmentAPI.service.ReservationService;
+
 @Service
 public class ReservationServiceImp implements ReservationService {
     private final ReservationRepository reservationRepository;
@@ -62,13 +60,13 @@ public class ReservationServiceImp implements ReservationService {
     }
 
     @Override
-    public Page<EntityModel<ReservationResponseDto>> getAllReservations(Integer page, Integer size, Long id, String name, LocalDate time){
+    public Page<EntityModel<ReservationResponseDto>> getAllReservations(Integer page, Integer size, Long id, String name, LocalDate time) {
         SecurityUtils.checkIfAdminAuthority();
         return reservationRepository.findWithIdNameDate(id, name, time, Pageable.ofSize(size).withPage(page)).map(reservationResponseAssembler::toModel);
     }
 
     @Override
-    public CollectionModel<EntityModel<ReservationResponseDto>> getAllReservations(Long id, String name, LocalDate time){
+    public CollectionModel<EntityModel<ReservationResponseDto>> getAllReservations(Long id, String name, LocalDate time) {
         SecurityUtils.checkIfAdminAuthority();
         List<EntityModel<ReservationResponseDto>> reservations = reservationRepository.findWithIdNameDate(id, name, time).stream().map(reservationResponseAssembler::toModel).collect(Collectors.toList());
         return CollectionModel.of(reservations);
@@ -135,6 +133,17 @@ public class ReservationServiceImp implements ReservationService {
         return reservationResponseAssembler.toCollectionModel(upcomingReservations);
     }
 
+    @Override
+    public EntityModel<ReservationInvoicesResponse> getReservationInvoice(Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation not found"));
+        ReservationInvoicesResponse reservationInvoicesResponse = new ReservationInvoicesResponse(reservation.getId(), reservation.getCheckinDate(), reservation.getCheckoutDate(), reservation.getNumAdults(), reservation.getNumChildren(), reservation.getPaymentAmount());
+
+        EntityModel<ReservationInvoicesResponse> model = EntityModel.of(reservationInvoicesResponse);
+        model.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(ReservationController.class).payForReservation(new ReservationPaymentDto(reservation.getId()))).withRel("Payment"));
+        return model;
+    }
+
     private Reservation fromRequestToEntity(ReservationRequestDto reservationRequestDto, UserEntity user) {
         Reservation reservation = new Reservation();
         reservation.setCheckinDate(reservationRequestDto.getCheckinDate());
@@ -147,9 +156,9 @@ public class ReservationServiceImp implements ReservationService {
 
     private void reserveRoomsIfAvailable(List<Long> roomIds) throws BadRequestException {
         List<Room> rooms = roomRepository.findAllById(roomIds);
-        RoomStatus roomStatus = roomStatusRepository.findByStatusName(RoomStatusEnum.Reserved).orElseThrow(() -> new EnumConstantNotPresentException(RoomStatusEnum.class, RoomStatusEnum.Reserved.name()));
+        RoomStatus roomStatus = roomStatusRepository.findByStatusName(RoomStatusEnum.RESERVED).orElseThrow(() -> new EnumConstantNotPresentException(RoomStatusEnum.class, RoomStatusEnum.RESERVED.name()));
         for (Room room : rooms) {
-            if (room.getStatus().getStatusName().name().equalsIgnoreCase(RoomStatusEnum.Reserved.name())) {
+            if (room.getStatus().getStatusName().name().equalsIgnoreCase(RoomStatusEnum.RESERVED.name())) {
                 throw new BadRequestException("Requested Room with id = " + room.getId() + ", Room number = " + room.getRoomNumber() + ", is already reserved");
             }
             room.setStatus(roomStatus);

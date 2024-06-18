@@ -59,4 +59,14 @@ public class Reservation {
                         getRoom().getRoomClass().getPrice())
                 .reduce(0f, Float::sum);
     }
+
+    public Reservation(LocalDate checkinDate, LocalDate checkoutDate, Integer numAdults, Integer numChildren, String paymentStatus, UserEntity userEntity) {
+        this.checkinDate = checkinDate;
+        this.checkoutDate = checkoutDate;
+        this.numAdults = numAdults;
+        this.numChildren = numChildren;
+        this.paymentStatus = paymentStatus;
+        this.userEntity = userEntity;
+
+    }
 }

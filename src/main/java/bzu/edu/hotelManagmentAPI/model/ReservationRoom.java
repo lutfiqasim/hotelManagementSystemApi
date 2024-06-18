@@ -25,4 +25,8 @@ public class ReservationRoom {
     @JoinColumn(name = "room_id")
     private Room room;
 
+    public ReservationRoom(Reservation reservation, Room room) {
+        this.reservation = reservation;
+        this.room = room;
+    }
 }

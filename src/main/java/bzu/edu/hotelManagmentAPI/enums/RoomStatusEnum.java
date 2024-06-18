@@ -1,8 +1,8 @@
 package bzu.edu.hotelManagmentAPI.enums;
 
 public enum RoomStatusEnum {
-    Reserved,
-    Available,
-    Maintenance,
+    RESERVED,
+    AVAILABLE,
+    MAINTENANCE,
     OnHold
 }

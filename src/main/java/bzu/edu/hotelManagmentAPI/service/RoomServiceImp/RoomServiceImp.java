@@ -18,7 +18,6 @@ import bzu.edu.hotelManagmentAPI.repository.RoomStatusRepository;
 import bzu.edu.hotelManagmentAPI.security.SecurityUtils;
 import bzu.edu.hotelManagmentAPI.service.RoomService;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -107,11 +106,11 @@ public class RoomServiceImp implements RoomService {
             }
             RoomStatus roomStatus;
             if (roomRequestDto.getStatus().equals("AVAILABLE")) {
-                roomStatus = roomStatusRepository.findByStatusName(RoomStatusEnum.Available).orElseThrow(() ->
-                        new EnumConstantNotPresentException(RoomStatusEnum.class, RoomStatusEnum.Available.name()));
+                roomStatus = roomStatusRepository.findByStatusName(RoomStatusEnum.AVAILABLE).orElseThrow(() ->
+                        new EnumConstantNotPresentException(RoomStatusEnum.class, RoomStatusEnum.AVAILABLE.name()));
             } else {
-                roomStatus = roomStatusRepository.findByStatusName(RoomStatusEnum.Maintenance).orElseThrow(() ->
-                        new EnumConstantNotPresentException(RoomStatusEnum.class, RoomStatusEnum.Maintenance.name()));
+                roomStatus = roomStatusRepository.findByStatusName(RoomStatusEnum.MAINTENANCE).orElseThrow(() ->
+                        new EnumConstantNotPresentException(RoomStatusEnum.class, RoomStatusEnum.MAINTENANCE.name()));
             }
             Room room = new Room(floor, roomClass, roomStatus, roomRequestDto.getRoomNumber());
             return roomResponseAssembler.toModel(roomRepository.save(room));
@@ -149,10 +148,10 @@ public class RoomServiceImp implements RoomService {
 
                 room.setRoomNumber(roomUpdateDto.getRoomNumber());
                 if (roomUpdateDto.getStatus().equals("AVAILABLE")) {
-                    RoomStatus roomStatus = roomStatusRepository.findByStatusName(RoomStatusEnum.Available).orElseThrow(() -> new EnumConstantNotPresentException(RoomStatusEnum.class, RoomStatusEnum.Available.name()));
+                    RoomStatus roomStatus = roomStatusRepository.findByStatusName(RoomStatusEnum.AVAILABLE).orElseThrow(() -> new EnumConstantNotPresentException(RoomStatusEnum.class, RoomStatusEnum.AVAILABLE.name()));
                     room.setStatus(roomStatus);
                 } else {
-                    RoomStatus roomStatus = roomStatusRepository.findByStatusName(RoomStatusEnum.Reserved).orElseThrow(() -> new EnumConstantNotPresentException(RoomStatusEnum.class, RoomStatusEnum.Reserved.name()));
+                    RoomStatus roomStatus = roomStatusRepository.findByStatusName(RoomStatusEnum.RESERVED).orElseThrow(() -> new EnumConstantNotPresentException(RoomStatusEnum.class, RoomStatusEnum.RESERVED.name()));
                     room.setStatus(roomStatus);
                 }
                 return roomResponseAssembler.toModel(roomRepository.save(room));
@@ -195,10 +194,10 @@ public class RoomServiceImp implements RoomService {
             }
             if (roomPartialUpdateDto.getStatus() != null) {
                 if (roomPartialUpdateDto.getStatus().equals("AVAILABLE")) {
-                    RoomStatus roomStatus = roomStatusRepository.findByStatusName(RoomStatusEnum.Available).orElseThrow(() -> new EnumConstantNotPresentException(RoomStatusEnum.class, RoomStatusEnum.Available.name()));
+                    RoomStatus roomStatus = roomStatusRepository.findByStatusName(RoomStatusEnum.AVAILABLE).orElseThrow(() -> new EnumConstantNotPresentException(RoomStatusEnum.class, RoomStatusEnum.AVAILABLE.name()));
                     room.setStatus(roomStatus);
                 } else {
-                    RoomStatus roomStatus = roomStatusRepository.findByStatusName(RoomStatusEnum.Reserved).orElseThrow(() -> new EnumConstantNotPresentException(RoomStatusEnum.class, RoomStatusEnum.Reserved.name()));
+                    RoomStatus roomStatus = roomStatusRepository.findByStatusName(RoomStatusEnum.RESERVED).orElseThrow(() -> new EnumConstantNotPresentException(RoomStatusEnum.class, RoomStatusEnum.RESERVED.name()));
                     room.setStatus(roomStatus);
                 }
             }

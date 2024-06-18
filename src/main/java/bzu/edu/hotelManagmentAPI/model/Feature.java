@@ -16,6 +16,10 @@ public class Feature {
     @Id()
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "feature_name",nullable = false)
+    @Column(name = "feature_name", nullable = false)
     private String featureName;
+
+    public Feature(String featureName) {
+        this.featureName = featureName;
+    }
 }

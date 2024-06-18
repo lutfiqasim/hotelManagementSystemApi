@@ -1,10 +1,9 @@
 package bzu.edu.hotelManagmentAPI.service;
 
-import bzu.edu.hotelManagmentAPI.dto.ReservationPaymentDto;
-import bzu.edu.hotelManagmentAPI.dto.ReservationRequestDto;
-import bzu.edu.hotelManagmentAPI.dto.ReservationResponseDto;
-import bzu.edu.hotelManagmentAPI.dto.ReservationUpdateDto;
+import bzu.edu.hotelManagmentAPI.dto.*;
+
 import java.time.LocalDate;
+
 import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.hateoas.CollectionModel;
@@ -32,4 +31,5 @@ public interface ReservationService {
 
     CollectionModel<EntityModel<ReservationResponseDto>> getUpcomingReservations(Long userId);
 
+    EntityModel<ReservationInvoicesResponse> getReservationInvoice(Long reservationId);
 }

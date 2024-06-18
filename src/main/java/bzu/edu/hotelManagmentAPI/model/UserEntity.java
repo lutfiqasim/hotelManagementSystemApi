@@ -49,6 +49,15 @@ public class UserEntity {
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
     List<Role> roles = new ArrayList<>();
 
+    public UserEntity(String emailAddress, String firstName, String lastName, String phoneNumber, String password) {
+        this.emailAddress = emailAddress;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phoneNumber = phoneNumber;
+        this.password = password;
+        this.roles = roles;
+    }
+
     public List<Role> getRoles() {
         return roles;
     }

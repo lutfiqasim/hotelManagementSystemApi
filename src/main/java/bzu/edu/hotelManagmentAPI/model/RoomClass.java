@@ -1,9 +1,10 @@
 package bzu.edu.hotelManagmentAPI.model;
 
+import bzu.edu.hotelManagmentAPI.enums.RoomClassEnum;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,7 +23,7 @@ public class RoomClass {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "class_name", nullable = false)
-    @NotBlank(message = "class name is required")
+    @NotNull(message = "class name is required")
     private RoomClassEnum className;
 
     @Column(name = "num_beds")

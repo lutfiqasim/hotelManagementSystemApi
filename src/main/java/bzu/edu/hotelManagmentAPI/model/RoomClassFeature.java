@@ -24,4 +24,9 @@ public class RoomClassFeature {
     @ManyToOne
     @JoinColumn(name = "feature_id")
     private Feature feature;
+
+    public RoomClassFeature(RoomClass roomClass, Feature feature) {
+        this.roomClass = roomClass;
+        this.feature = feature;
+    }
 }

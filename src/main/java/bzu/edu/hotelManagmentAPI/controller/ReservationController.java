@@ -1,13 +1,12 @@
 package bzu.edu.hotelManagmentAPI.controller;
 
-import bzu.edu.hotelManagmentAPI.dto.ReservationPaymentDto;
-import bzu.edu.hotelManagmentAPI.dto.ReservationRequestDto;
-import bzu.edu.hotelManagmentAPI.dto.ReservationResponseDto;
-import bzu.edu.hotelManagmentAPI.dto.ReservationUpdateDto;
+import bzu.edu.hotelManagmentAPI.dto.*;
 import bzu.edu.hotelManagmentAPI.service.ReservationService;
 import jakarta.validation.Valid;
 import org.apache.coyote.BadRequestException;
+
 import java.time.LocalDate;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -16,7 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(value="/api/reservations", headers = "X-API-Version=1")
+@RequestMapping(value = "/api/reservations", headers = "X-API-Version=1")
 public class ReservationController {
     protected final ReservationService reservationService;
 
@@ -26,12 +25,12 @@ public class ReservationController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<?>  getUserReservations(@PathVariable Long userId) {
+    public ResponseEntity<?> getUserReservations(@PathVariable Long userId) {
         return ResponseEntity.ok(reservationService.getUserReservations(userId));
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllReservations(@RequestParam(required = false) LocalDate time,  @RequestParam(required = false) String name, @RequestParam(required =  false) Long id) {
+    public ResponseEntity<?> getAllReservations(@RequestParam(required = false) LocalDate time, @RequestParam(required = false) String name, @RequestParam(required = false) Long id) {
         return ResponseEntity.ok(reservationService.getAllReservations(id, name, time));
     }
 
@@ -39,6 +38,11 @@ public class ReservationController {
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<ReservationResponseDto>> getReservationById(@PathVariable Long id) {
         return ResponseEntity.ok(reservationService.getReservationById(id));
+    }
+
+    @GetMapping("/{reservationId}/invoice")
+    public ResponseEntity<EntityModel<ReservationInvoicesResponse>> getReservationInvoice(@PathVariable Long reservationId) {
+        return ResponseEntity.ok(reservationService.getReservationInvoice(reservationId));
     }
 
     @PostMapping("/{id}/pay")
