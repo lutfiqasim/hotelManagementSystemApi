@@ -27,7 +27,6 @@ public class ReservationUpdateDto {
 
     private Integer numChildren;
 
-    @NotNull
     private Float paymentAmount;
 
     @NotNull

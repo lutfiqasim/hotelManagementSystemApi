@@ -28,12 +28,12 @@ public class ReservationRequestDto {
     private Integer numAdults;
 
     private Integer numChildren = 0;
-    
+
     @NotNull
     private Long userId;
 
     @NotNull
-    private List<Long> roomIds; //why list???
+    private List<Long> roomIds;
 
     private ReservationPaymentDto payment;
 

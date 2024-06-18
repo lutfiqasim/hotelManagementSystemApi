@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -22,8 +23,9 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     List<Reservation> findWithIdNameDate(Long id, String name, LocalDate date);
 
     // find reservations by user Id and payment status
-    List<Reservation> findByUserEntityAndPaymentStatus(UserEntity userEntity, PaymentStatus paymentStatus);
+    @Query("SELECT r FROM Reservation r WHERE r.userEntity = :userEntity AND r.payment.paymentStatus = :paymentStatus")
+    List<Reservation> findByUserEntityAndPaymentStatus(@Param("userEntity") UserEntity userEntity, @Param("paymentStatus") PaymentStatus paymentStatus);
 
-    // find upcoming reservations by user ID and check-in date
+    //TODO: find upcoming reservations by user ID and check-in date fix this for future
     List<Reservation> findByUserEntityIdAndCheckinDateAfter(UserEntity userEntity, LocalDate date);
 }

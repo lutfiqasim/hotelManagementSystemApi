@@ -38,14 +38,14 @@ public class Reservation {
     @Min(value = 1, message = "At least one adult is required to reserve a room")
     private Integer numAdults;
 
-    @Column(name = "num_children") 
+    @Column(name = "num_children")
     private Integer numChildren; //why do we need this??
 
     @ManyToOne()
     @JoinColumn(name = "user_id")
     private UserEntity userEntity;
 
-    
+
     @Nullable //add payment after the reservation is created
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "payment_id")
@@ -70,8 +70,7 @@ public class Reservation {
         this.checkoutDate = checkoutDate;
         this.numAdults = numAdults;
         this.numChildren = numChildren;
-        this.payment = payment;        
+        this.payment = payment;
         this.userEntity = userEntity;
-
     }
 }

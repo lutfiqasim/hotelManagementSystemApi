@@ -46,9 +46,9 @@ public class ReservationController {
     }
 
     @PostMapping("/{id}/pay")
-    public ResponseEntity<String> payForReservation(@RequestBody ReservationPaymentDto paymentDto) {
-        reservationService.payForReservation(paymentDto);
-        return ResponseEntity.ok("Successful Payment");
+    public ResponseEntity<EntityModel<ReservationPaymentDto>> payForReservation(@PathVariable Long id) {
+        reservationService.payForReservation(id);
+        return ResponseEntity.ok(reservationService.payForReservation(id));
     }
 
     @PostMapping("")
@@ -57,7 +57,7 @@ public class ReservationController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EntityModel<ReservationResponseDto>> updateAReservation(@PathVariable Long id, @Valid ReservationUpdateDto reservationUpdateDto) {
+    public ResponseEntity<EntityModel<ReservationResponseDto>> updateAReservation(@PathVariable Long id, @Valid ReservationUpdateDto reservationUpdateDto) throws BadRequestException {
         return new ResponseEntity<>(reservationService.updateReservation(id, reservationUpdateDto), HttpStatus.OK);
     }
 

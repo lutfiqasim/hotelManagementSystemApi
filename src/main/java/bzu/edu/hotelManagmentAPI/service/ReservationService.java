@@ -22,7 +22,7 @@ public interface ReservationService {
 
     CollectionModel<EntityModel<ReservationResponseDto>> getAllReservations(Long id, String name, LocalDate date);
 
-    void payForReservation(ReservationPaymentDto reservationPaymentDto);
+    EntityModel<ReservationPaymentDto> payForReservation(Long id);
 
     EntityModel<ReservationResponseDto> getReservationById(Long id);
 
@@ -30,7 +30,7 @@ public interface ReservationService {
 
     EntityModel<ReservationResponseDto> createReservation(ReservationRequestDto reservationRequestDto) throws BadRequestException;
 
-    EntityModel<ReservationResponseDto> updateReservation(Long id, ReservationUpdateDto reservationUpdateDto);
+    EntityModel<ReservationResponseDto> updateReservation(Long id, ReservationUpdateDto reservationUpdateDto) throws BadRequestException;
 
     void deleteReservation(Long id);
 

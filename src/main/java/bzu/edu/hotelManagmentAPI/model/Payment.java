@@ -15,10 +15,14 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Transient;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Data
+@Setter
+@Getter
 @NoArgsConstructor
 public class Payment {
     @Id
@@ -35,20 +39,16 @@ public class Payment {
     @Column(name = "payment_status")
     @Enumerated(EnumType.STRING)
     private PaymentStatus paymentStatus = PaymentStatus.OnHold;
-    
+
     private Float amount;
 
 
-    public Payment(PaymentMethod paymentMethod, PaymentStatus paymentStatus){
+    public Payment(PaymentMethod paymentMethod, PaymentStatus paymentStatus) {
         this.paymentMethod = paymentMethod;
         this.paymentStatus = paymentStatus;
         // this.amount = this.getAmount();
     }
 
-    // calculated value found better way
-    // @Column(name = "payment_amount")
-    // private Float paymentAmount;
-    // From internet
     @Transient
     public Float getAmount(Reservation reservation) {
         return reservation.getReservationRooms().stream().map(room -> room.
