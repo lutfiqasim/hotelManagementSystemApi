@@ -1,30 +1,35 @@
 package bzu.edu.hotelManagmentAPI.service;
 
-import bzu.edu.hotelManagmentAPI.dto.ReservationPaymentDto;
-import bzu.edu.hotelManagmentAPI.dto.ReservationResponseDto;
-import bzu.edu.hotelManagmentAPI.model.Reservation;
+import bzu.edu.hotelManagmentAPI.dto.*;
+
+import java.time.LocalDate;
+
+import org.apache.coyote.BadRequestException;
+import org.springframework.data.domain.Page;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 
 public interface ReservationService {
 
-    public abstract CollectionModel<EntityModel<ReservationResponseDto>> getUserReservations(Long userId);
+    CollectionModel<EntityModel<ReservationResponseDto>> getUserReservations(Long userId);
 
-    public abstract CollectionModel<EntityModel<ReservationResponseDto>> getAllReservations();
+    Page<EntityModel<ReservationResponseDto>> getAllReservations(Integer page, Integer size, Long id, String name, LocalDate date);
 
-    public abstract String payForReservation(ReservationPaymentDto reservationPaymentDto);
+    CollectionModel<EntityModel<ReservationResponseDto>> getAllReservations(Long id, String name, LocalDate date);
 
-    public abstract EntityModel<ReservationResponseDto> getReservationById(Long id);
+    void payForReservation(ReservationPaymentDto reservationPaymentDto);
 
-    public abstract EntityModel<ReservationResponseDto> createReservation(Reservation reservation);
+    EntityModel<ReservationResponseDto> getReservationById(Long id);
 
-    public abstract EntityModel<ReservationResponseDto> updateReservation(Long id, Reservation reservation);
+    EntityModel<ReservationResponseDto> createReservation(ReservationRequestDto reservationRequestDto) throws BadRequestException;
 
-    public abstract void deleteReservation(Long id);
+    EntityModel<ReservationResponseDto> updateReservation(Long id, ReservationUpdateDto reservationUpdateDto);
 
-    public abstract CollectionModel<EntityModel<ReservationResponseDto>> getUserReservationsOnHold(Long userId);
+    void deleteReservation(Long id);
 
-    public abstract CollectionModel<EntityModel<ReservationResponseDto>> getUpcomingReservations(Long userId);
+    CollectionModel<EntityModel<ReservationResponseDto>> getUserReservationsOnHold(Long userId);
 
+    CollectionModel<EntityModel<ReservationResponseDto>> getUpcomingReservations(Long userId);
 
+    EntityModel<ReservationInvoicesResponse> getReservationInvoice(Long reservationId);
 }

@@ -20,8 +20,13 @@ public class RoomClassFeature {
     @ManyToOne
     @JoinColumn(name = "room_class_id")
     private RoomClass roomClass;
-    
+
     @ManyToOne
     @JoinColumn(name = "feature_id")
     private Feature feature;
+
+    public RoomClassFeature(RoomClass roomClass, Feature feature) {
+        this.roomClass = roomClass;
+        this.feature = feature;
+    }
 }

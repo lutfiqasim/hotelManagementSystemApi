@@ -3,11 +3,13 @@ package bzu.edu.hotelManagmentAPI.model;
 import bzu.edu.hotelManagmentAPI.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Setter
 @Getter
 @Entity
+@NoArgsConstructor
 @Table(name = "roles")
 public class Role {
     @Id
@@ -16,6 +18,10 @@ public class Role {
 
     @Enumerated(EnumType.STRING)
     private UserRole name;
+
+    public Role(UserRole name) {
+        this.name = name;
+    }
 
     @Override
     public String toString() {

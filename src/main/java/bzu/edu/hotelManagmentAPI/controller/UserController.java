@@ -10,6 +10,10 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -17,14 +21,15 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/users")
 public class UserController {
 
-    private final UserService userService;
+    protected final UserService userService;
 
     @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
     }
 
-    // @PreAuthorize("hasRole('ROLE_ADMIN')")
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/admins")
     public ResponseEntity<CollectionModel<EntityModel<UserEntityResponse>>> getAllAdmins() {
         CollectionModel<EntityModel<UserEntityResponse>> response = userService.getAllAdmins();
@@ -34,12 +39,14 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
+
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<UserEntityResponse>> getUserById(@PathVariable Long id) {
         EntityModel<UserEntityResponse> response = userService.getUserById(id);
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/customers")
     public ResponseEntity<CollectionModel<EntityModel<UserEntityResponse>>> getAllCustomers() {
         CollectionModel<EntityModel<UserEntityResponse>> response = userService.getAllCustomers();
@@ -49,6 +56,7 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
     public ResponseEntity<CollectionModel<EntityModel<UserEntityResponse>>> getAllUsers() {
         CollectionModel<EntityModel<UserEntityResponse>> response = userService.getAllUsers();
@@ -75,5 +83,39 @@ public class UserController {
         EntityModel<UserEntityResponse> response = userService.patchUser(id, userPatchDto);
         return ResponseEntity.ok(response);
     }
-
+//
+//    @GetMapping("/test")
+//    public ResponseEntity<Void> checkUser() {
+//        System.out.println("------------------------------");
+//        checkUserRoles();
+//        System.out.println("------------------------------");
+//        return ResponseEntity.noContent().build();
+//    }
+//    public void checkUserRoles() {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//
+//        // Check if the user is authenticated
+//        if (authentication != null && authentication.isAuthenticated()) {
+//            // Get principal (authenticated user)
+//            Object principal = authentication.getPrincipal();
+//
+//            if (principal instanceof UserDetails) {
+//                UserDetails userDetails = (UserDetails) principal;
+//
+//                // Print username
+//                String username = userDetails.getUsername();
+//                System.out.println("Authenticated User: " + username);
+//
+//                // Print roles
+//                userDetails.getAuthorities().forEach(authority -> {
+//                    System.out.println("Role: " + authority.getAuthority());
+//                });
+//            } else {
+//                // If principal is not UserDetails, print the principal object
+//                System.out.println("Authenticated User (Principal): " + principal);
+//            }
+//        } else {
+//            System.out.println("User is not authenticated");
+//        }
+//    }
 }

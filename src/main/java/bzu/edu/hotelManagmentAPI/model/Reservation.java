@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -25,7 +26,7 @@ public class Reservation {
     @Column(name = "checkin_date")
     @NotNull
     private LocalDate checkinDate;
-    
+
     @Column(name = "checkout_date")
     @NotNull
     private LocalDate checkoutDate;
@@ -41,11 +42,31 @@ public class Reservation {
     @Column(name = "payment_status")
     private String paymentStatus = "OnHold";
 
-    @Column(name = "payment_amount")
-    private Float paymentAmount;
-
     @ManyToOne()
     @JoinColumn(name = "user_id")
     private UserEntity userEntity;
 
+    @OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL)
+    private List<ReservationRoom> reservationRooms;
+
+    // calculated value found better way
+    // @Column(name = "payment_amount")
+    // private Float paymentAmount;
+    // From internet
+    @Transient
+    public Float getPaymentAmount() {
+        return reservationRooms.stream().map(room -> room.
+                        getRoom().getRoomClass().getPrice())
+                .reduce(0f, Float::sum);
+    }
+
+    public Reservation(LocalDate checkinDate, LocalDate checkoutDate, Integer numAdults, Integer numChildren, String paymentStatus, UserEntity userEntity) {
+        this.checkinDate = checkinDate;
+        this.checkoutDate = checkoutDate;
+        this.numAdults = numAdults;
+        this.numChildren = numChildren;
+        this.paymentStatus = paymentStatus;
+        this.userEntity = userEntity;
+
+    }
 }

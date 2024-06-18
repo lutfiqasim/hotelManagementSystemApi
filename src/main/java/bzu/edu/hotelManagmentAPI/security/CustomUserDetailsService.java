@@ -28,21 +28,14 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String emailAddress) throws UsernameNotFoundException {
-        UserEntity userEntity = userRepository.findByEmailAddress(emailAddress).orElseThrow(() -> new UsernameNotFoundException("user with given email not found"));
-         List<GrantedAuthority> authorities = new ArrayList<>();
+        UserEntity userEntity = userRepository.findByEmailAddress(emailAddress)
+                .orElseThrow(() -> new UsernameNotFoundException("User with given email not found"));
+        List<GrantedAuthority> authorities = new ArrayList<>();
         for (Role role : userEntity.getRoles()) {
-            authorities.add(new SimpleGrantedAuthority(role.getName().name()));
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName().name()));
         }
-        return new User(userEntity.getEmailAddress(), userEntity.getPassword(), 
-        // mapRolesToAuthorities(userEntity.getRoles())
-        authorities
-        );
-    }
-
-    private Collection<? extends GrantedAuthority> mapRolesToAuthorities(List<Role> roles) {
-        //"ROLE_" +
-        return roles.stream()
-                .map(role -> new SimpleGrantedAuthority(role.getName().name()))
-                .collect(Collectors.toList());
+        return new User(userEntity.getEmailAddress(), userEntity.getPassword(), authorities);
     }
 }
+
+
