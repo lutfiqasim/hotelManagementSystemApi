@@ -52,7 +52,8 @@ public class JWTGenerator {
             Jwts.parserBuilder().setSigningKey(getSignKey()).build().parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
-            throw new MalformedJwtException("Invalid JWT token", e);
+//            throw new MalformedJwtException("Invalid JWT token", e);
         }
+        return false;
     }
 }
