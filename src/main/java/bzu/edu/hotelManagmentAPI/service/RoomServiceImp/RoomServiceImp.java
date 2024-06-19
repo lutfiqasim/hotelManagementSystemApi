@@ -115,7 +115,6 @@ public class RoomServiceImp implements RoomService {
             Room room = new Room(floor, roomClass, roomStatus, roomRequestDto.getRoomNumber());
             return roomResponseAssembler.toModel(roomRepository.save(room));
         } catch (Exception e) {
-            System.out.println(e.getMessage()); //TODO: remove this line
             throw new RuntimeException("Failed to add new room!");
         }
     }
@@ -156,7 +155,6 @@ public class RoomServiceImp implements RoomService {
                 }
                 return roomResponseAssembler.toModel(roomRepository.save(room));
             } catch (Exception e) {
-                System.out.println(e.getMessage()); //TODO: remove this line
                 throw new RuntimeException("Failed to update room!");
             }
         }).orElseThrow(() -> new ResourceNotFoundException("Room not found!"));
