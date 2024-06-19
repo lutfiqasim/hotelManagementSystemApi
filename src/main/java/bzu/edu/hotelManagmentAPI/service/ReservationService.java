@@ -42,7 +42,7 @@ public interface ReservationService {
 
     EntityModel<ReservationResponseDto> cancelReservation(Long id);
 
-    public EntityModel<ReservationResponseDto> bookRoom(Long id, ReservationRequestDto reservationRequestDto) throws UsernameNotFoundException;
+    public EntityModel<ReservationResponseDto> bookRoom(ReservationRequestDto reservationRequestDto) throws BadRequestException;
 
 
     boolean isRoomAvailable(Long roomId, LocalDate checkinDate, LocalDate checkoutDate);

@@ -147,7 +147,7 @@ public class ReservationServiceImp implements ReservationService {
     }
 
     @Override
-    public EntityModel<ReservationResponseDto> bookRoom(Long roomId, ReservationRequestDto reservationRequestDto) throws UsernameNotFoundException{
+    public EntityModel<ReservationResponseDto> bookRoom(ReservationRequestDto reservationRequestDto) throws BadRequestException{
         Reservation reservation = new Reservation();
         reservation.setCheckinDate(reservationRequestDto.getCheckinDate());
         reservation.setCheckoutDate(reservationRequestDto.getCheckoutDate());
@@ -156,12 +156,13 @@ public class ReservationServiceImp implements ReservationService {
         UserEntity user = userRepository.findById(reservationRequestDto.getUserId()).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         reservation.setUserEntity(user);
         reservation.getPaymentAmount();
+        List<Long> resRoom = reservationRequestDto.getRoomIds();
+        Room room = roomRepository.findById(resRoom.get(0)).orElseThrow(() -> new ResourceNotFoundException("Room not found"));
+        if (!isRoomAvailable(room.getId(), reservation.getCheckinDate(), reservation.getCheckoutDate())) {
+            throw new BadRequestException("Room is not available for the selected dates");
+        }
+        reservation.getReservationRooms().add(new ReservationRoom(reservation, room));
         reservation.setReservationStatusEnum(ReservationStatusEnum.ONHOLD);
-        Room room = roomRepository.findById(roomId).orElseThrow(() -> new ResourceNotFoundException("Room not found"));
-        System.out.println("room id: "+room.getId());   
-        ReservationRoom reservationRoom = new ReservationRoom(reservation, room);
-        reservation.setReservationRooms(List.of(reservationRoom));
-        System.out.println("reservationRoom: "+reservationRoom.getRoom().getId());
         Reservation savedReservation = reservationRepository.save(reservation);
         return reservationResponseAssembler.toModel(savedReservation);
     }
@@ -194,7 +195,13 @@ public class ReservationServiceImp implements ReservationService {
     public EntityModel<ReservationResponseDto> createReservation(ReservationRequestDto reservationRequestDto) throws BadRequestException {
         UserEntity user = userRepository.findById(reservationRequestDto.getUserId())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
+        LocalDate checkinDate = reservationRequestDto.getCheckinDate();
+        LocalDate checkoutDate = reservationRequestDto.getCheckoutDate();
+        for (Long roomId : reservationRequestDto.getRoomIds()) {
+            if (!isRoomAvailable(roomId, checkinDate, checkoutDate)) {
+                throw new BadRequestException("Room is not available for the selected dates");
+            }
+        }
         Reservation reservation = fromRequestToEntity(reservationRequestDto, user);
         Payment payment = new Payment();
         ReservationPaymentDto paymentDto = reservationRequestDto.getPayment();
@@ -221,8 +228,15 @@ public class ReservationServiceImp implements ReservationService {
             throw new BadRequestException("Invalid Payment Method");
         }
 
+        List<ReservationRoom> reservationRooms = reservationRequestDto.getRoomIds().stream().map(roomId -> {
+            Room room = roomRepository.findById(roomId).orElseThrow(() -> new ResourceNotFoundException("Room not found"));
+            return new ReservationRoom(reservation, room);
+        }).collect(Collectors.toList());
+
+        reservation.setReservationRooms(reservationRooms);
+
         // Proceed with reservation
-        reserveRoomsIfAvailable(reservationRequestDto.getRoomIds());
+        // reserveRoomsIfAvailable(reservationRequestDto.getRoomIds());
 //        payment.setAmount(reservation.getPaymentAmount());
         reservation.setPayment(payment);
         if (reservationRequestDto.getCheckinDate().equals(LocalDate.now())) {

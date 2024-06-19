@@ -2,6 +2,7 @@ package bzu.edu.hotelManagmentAPI.controller;
 
 import java.time.LocalDate;
 
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -61,9 +62,9 @@ public class RoomController {
         return new ResponseEntity<>(roomService.addNewRoom(roomRequestDto), HttpStatus.CREATED);
     }
 
-    @PostMapping("{roomId}/book")
-    public ResponseEntity<?> bookRoom(@PathVariable Long roomId, @RequestBody ReservationRequestDto reservationRequestDto) {
-        return ResponseEntity.ok(reservationService.bookRoom(roomId,reservationRequestDto));
+    @PostMapping("book")
+    public ResponseEntity<?> bookRoom(@RequestBody ReservationRequestDto reservationRequestDto) throws BadRequestException {
+        return ResponseEntity.ok(reservationService.bookRoom(reservationRequestDto));
     }
 
 

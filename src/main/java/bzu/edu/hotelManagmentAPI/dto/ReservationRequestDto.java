@@ -32,6 +32,7 @@ public class ReservationRequestDto {
     @NotNull
     private Long userId;
 
+    @NotNull
     private List<Long> roomIds;
 
     private ReservationPaymentDto payment;
