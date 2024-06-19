@@ -28,7 +28,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -67,10 +66,10 @@ public class ReservationServiceImp implements ReservationService {
     }
 
     @Override
-    public Page<EntityModel<ReservationResponseDto>> getAllReservations(Integer page, Integer size, Long id, String name, LocalDate time) {
-        SecurityUtils.checkIfAdminAuthority();
-        return reservationRepository.findWithIdNameDate(id, name, time, Pageable.ofSize(size).withPage(page)).map(reservationResponseAssembler::toModel);
+    public Page<EntityModel<ReservationResponseDto>> getAllReservations(Long id, String name, LocalDate date, Pageable pageable) {
+        return null;
     }
+
 
     @Override
     public CollectionModel<EntityModel<ReservationResponseDto>> getAllReservations(Long id, String name, LocalDate time) {
@@ -219,7 +218,7 @@ public class ReservationServiceImp implements ReservationService {
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         SecurityUtils.checkIfSameUserOrAdmin(user);
         //TODO: check status exception
-        List<Reservation> upcomingReservations = reservationRepository.findByUserEntityIdAndCheckinDateAfter(user, LocalDate.now());
+        List<Reservation> upcomingReservations = reservationRepository.findByUserEntityAndCheckinDateAfter(user, LocalDate.now());
         if (upcomingReservations.isEmpty()) {
             return CollectionModel.empty();
         }
@@ -274,6 +273,34 @@ public class ReservationServiceImp implements ReservationService {
         roomRepository.saveAll(rooms);
     }
 
+    public Page<ReservationResponseDto> getAllReservations(Long userId, LocalDate checkinDate, LocalDate checkoutDate, Pageable pageable) {
+        if (userId != null) {
+            return reservationRepository.findByUserEntityId(userId, pageable).map(this::toReservationResponseDto);
+        } else if (checkinDate != null && checkoutDate != null) {
+            return reservationRepository.findByCheckinDateAndCheckoutDate(checkinDate, checkoutDate, pageable).map(this::toReservationResponseDto);
+        } else {
+            return reservationRepository.findAll(pageable).map(this::toReservationResponseDto);
+        }
+    }
+
+    public Page<ReservationResponseDto> getReservationsByDate(LocalDate date, Pageable pageable) {
+        return reservationRepository.findByCheckinDate(date, pageable).map(this::toReservationResponseDto);
+    }
+
+    private ReservationResponseDto toReservationResponseDto(Reservation reservation) {
+        return new ReservationResponseDto(
+                reservation.getId(),
+                reservation.getCheckinDate(),
+                reservation.getCheckoutDate(),
+                reservation.getNumAdults(),
+                reservation.getNumChildren(),
+                reservation.getPaymentAmount(),
+                reservation.getUserEntity().getId(),
+                mapReservationToReservationPaymentDto(reservation),
+                reservation.getReservationStatusEnum()
+        );
+    }
+
     private void setReservedRoomsToAvailable(List<ReservationRoom> reservationRooms) {
         RoomStatus roomStatus = roomStatusRepository.findByStatusName(RoomStatusEnum.AVAILABLE).orElseThrow(() -> new EnumConstantNotPresentException(RoomStatusEnum.class, RoomStatusEnum.AVAILABLE.name()));
         for (ReservationRoom r :
@@ -303,5 +330,6 @@ public class ReservationServiceImp implements ReservationService {
         paymentDto.setReservationId(reservation.getId());
         return paymentDto;
     }
+
 
 }

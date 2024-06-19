@@ -11,6 +11,7 @@ import java.time.LocalDate;
 
 import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 
@@ -18,7 +19,7 @@ public interface ReservationService {
 
     CollectionModel<EntityModel<ReservationResponseDto>> getUserReservations(Long userId);
 
-    Page<EntityModel<ReservationResponseDto>> getAllReservations(Integer page, Integer size, Long id, String name, LocalDate date);
+    Page<EntityModel<ReservationResponseDto>> getAllReservations(Long id, String name, LocalDate date, Pageable pageable);
 
     CollectionModel<EntityModel<ReservationResponseDto>> getAllReservations(Long id, String name, LocalDate date);
 
@@ -41,4 +42,7 @@ public interface ReservationService {
     CollectionModel<EntityModel<ReservationResponseDto>> getUpcomingReservations(Long userId);
 
     EntityModel<ReservationInvoicesResponse> getReservationInvoice(Long reservationId) throws BadRequestException;
+
+    Page<ReservationResponseDto> getReservationsByDate(LocalDate date, Pageable pageable);
+    Page<ReservationResponseDto> getAllReservations(Long userId, LocalDate checkinDate, LocalDate checkoutDate, Pageable pageable);
 }

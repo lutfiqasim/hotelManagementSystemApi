@@ -26,6 +26,15 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     @Query("SELECT r FROM Reservation r WHERE r.userEntity = :userEntity AND r.payment.paymentStatus = :paymentStatus")
     List<Reservation> findByUserEntityAndPaymentStatus(@Param("userEntity") UserEntity userEntity, @Param("paymentStatus") PaymentStatus paymentStatus);
 
-    //TODO: find upcoming reservations by user ID and check-in date fix this for future
-    List<Reservation> findByUserEntityIdAndCheckinDateAfter(UserEntity userEntity, LocalDate date);
+    // TODO: Fixed method to find upcoming reservations by user ID and check-in date(needs testing )
+    List<Reservation> findByUserEntityAndCheckinDateAfter(UserEntity userEntity, LocalDate date);
+
+    //    for pagination
+    Page<Reservation> findByUserEntityId(Long userId, Pageable pageable);
+
+    Page<Reservation> findByCheckinDateAndCheckoutDate(LocalDate checkinDate, LocalDate checkoutDate, Pageable pageable);
+
+    Page<Reservation> findByCheckinDate(LocalDate date, Pageable pageable);
+
+    Page<Reservation> findAll(Pageable pageable);
 }

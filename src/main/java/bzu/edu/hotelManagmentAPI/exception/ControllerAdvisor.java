@@ -148,7 +148,6 @@ public class ControllerAdvisor {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<ErrorResponse> handleGlobalException(Exception e) {
-        e.printStackTrace();
         ErrorResponse errorResponse = new ErrorResponse(
                 LocalDateTime.now(),
                 e.getMessage(),
