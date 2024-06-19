@@ -134,7 +134,7 @@ Using the DockerFile found in the project directory, you can use the following c
   docker-compose build
   docker-compose up
 ```
-An already built image of the application can be found (https://hub.docker.com/r/belalhmeidat/hotel-management-system-api)[here].
+An already built image of the application can be found [here](https://hub.docker.com/r/belalhmeidat/hotel-management-system-api).
 Use this command to run the image:
 ```
   docker run <image-name-or-image-id>
