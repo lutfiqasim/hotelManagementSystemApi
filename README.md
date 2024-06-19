@@ -126,7 +126,21 @@ To run the Java Spring Boot application, follow these steps:
 6. The application will start and listen on a specific port (usually 8080). You can access the application by
    opening `http://localhost:8080`.
 
-## HOW TO RUN USING DOCKER  or docker image upload the docker image to docker hub
+## HOW TO RUN USING DOCKER 
+Using the DockerFile found in the project directory, you can use the following commands to genereate a Docker image:
+```
+  mvnw clean install
+  launch Docker Desktop to start Docker Daemon
+  docker-compose build
+  docker-compose up
+```
+An already built image of the application can be found (https://hub.docker.com/r/belalhmeidat/hotel-management-system-api)[here].
+Use this command to run the image:
+```
+  docker run <image-name-or-image-id>
+```
+
+
 
 ## Lessons Learned throughout the project
 
