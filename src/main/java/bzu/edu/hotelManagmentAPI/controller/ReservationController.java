@@ -31,6 +31,7 @@ public class ReservationController {
         return ResponseEntity.ok(reservationService.getUserReservations(userId));
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
     public ResponseEntity<?> getAllReservations(@RequestParam(required = false) LocalDate time, @RequestParam(required = false) String name, @RequestParam(required = false) Long id) {
         return ResponseEntity.ok(reservationService.getAllReservations(id, name, time));

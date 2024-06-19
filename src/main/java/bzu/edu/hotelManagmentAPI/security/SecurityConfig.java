@@ -27,9 +27,7 @@ import static org.springframework.http.HttpMethod.DELETE;
 @EnableWebSecurity
 @EnableMethodSecurity
 @EnableGlobalAuthentication
-public class SecurityConfig
-// extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity>
-{
+public class SecurityConfig {
     private static final String[] WHITE_LIST_URL = {
             "/api/v1/auth/**",
             "/v2/api-docs",
