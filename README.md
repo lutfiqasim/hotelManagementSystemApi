@@ -15,8 +15,7 @@ The following resources are introduced in this system:
 
 - `Feature`: Represents the available features for each room class.
     - `id` : An auto-generated unique identifier for each feature.
-    - `featureName` : The name or description of the feature. This attribute is mandatory (nullable = false) and is
-      stored in the database column feature_name
+    - `featureName` : The name or description of the feature.
 - `Floor` :  Represents a specific level or story in a building.
     - `id`: An auto-generated unique identifier for each Floor.
     - `floorNumber` : The numeric identifier of the floor itself.
@@ -61,7 +60,10 @@ The following resources are introduced in this system:
     - `password` : The encoded password of the user
     - `roles` : The roles assigned to the user.
 ## ER DIAGRAM
-
+## ER Diagram
+<div align="center">
+  <img src="images/er_diagram.png" alt="ERD"/>
+</div>
 ## How to Run the Application
 
 To run the Java Spring Boot application, follow these steps:
