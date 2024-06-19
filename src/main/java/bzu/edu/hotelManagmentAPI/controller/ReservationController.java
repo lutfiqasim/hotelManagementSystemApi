@@ -2,6 +2,7 @@ package bzu.edu.hotelManagmentAPI.controller;
 
 import bzu.edu.hotelManagmentAPI.dto.*;
 import bzu.edu.hotelManagmentAPI.service.ReservationService;
+import jakarta.transaction.NotSupportedException;
 import jakarta.validation.Valid;
 import org.apache.coyote.BadRequestException;
 
@@ -12,6 +13,7 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -29,6 +31,7 @@ public class ReservationController {
         return ResponseEntity.ok(reservationService.getUserReservations(userId));
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
     public ResponseEntity<?> getAllReservations(@RequestParam(required = false) LocalDate time, @RequestParam(required = false) String name, @RequestParam(required = false) Long id) {
         return ResponseEntity.ok(reservationService.getAllReservations(id, name, time));
@@ -41,14 +44,14 @@ public class ReservationController {
     }
 
     @GetMapping("/{reservationId}/invoice")
-    public ResponseEntity<EntityModel<ReservationInvoicesResponse>> getReservationInvoice(@PathVariable Long reservationId) {
+    public ResponseEntity<EntityModel<ReservationInvoicesResponse>> getReservationInvoice(@PathVariable Long reservationId) throws BadRequestException {
         return ResponseEntity.ok(reservationService.getReservationInvoice(reservationId));
     }
 
     @PostMapping("/{id}/pay")
-    public ResponseEntity<String> payForReservation(@RequestBody ReservationPaymentDto paymentDto) {
-        reservationService.payForReservation(paymentDto);
-        return ResponseEntity.ok("Successful Payment");
+    public ResponseEntity<EntityModel<ReservationPaymentDto>> payForReservation(@PathVariable Long id) {
+        reservationService.payForReservation(id);
+        return ResponseEntity.ok(reservationService.payForReservation(id));
     }
 
     @PostMapping("")
@@ -57,14 +60,20 @@ public class ReservationController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EntityModel<ReservationResponseDto>> updateAReservation(@PathVariable Long id, @Valid ReservationUpdateDto reservationUpdateDto) {
+    public ResponseEntity<EntityModel<ReservationResponseDto>> updateAReservation(@PathVariable Long id, @Valid ReservationUpdateDto reservationUpdateDto) throws BadRequestException {
         return new ResponseEntity<>(reservationService.updateReservation(id, reservationUpdateDto), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity deleteReservation(@PathVariable Long id) {
         reservationService.deleteReservation(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PatchMapping("/{id}/cancel")
+    public ResponseEntity<EntityModel<ReservationResponseDto>> cancelAReservation(@PathVariable Long id) throws NotSupportedException {
+        throw new NotSupportedException("contact suport");
     }
 
     @GetMapping("/users/{userId}/onHold")

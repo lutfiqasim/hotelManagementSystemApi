@@ -3,6 +3,7 @@ package bzu.edu.hotelManagmentAPI.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -29,8 +30,8 @@ public class RoomController {
         this.roomService = roomService;
     }
 
-   @GetMapping
-    public ResponseEntity<?> getAllRooms(@RequestParam(value ="page", required = false) Integer page, @RequestParam(value ="size", required = false) Integer size) {
+    @GetMapping
+    public ResponseEntity<?> getAllRooms(@RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size) {
         return ResponseEntity.ok(roomService.getAllRooms(page, size));
     }
 
@@ -44,21 +45,25 @@ public class RoomController {
         return ResponseEntity.ok(roomService.getRoomById(id));
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping
     public ResponseEntity<?> addNewRoom(@RequestBody RoomRequestDto roomRequestDto) {
         return new ResponseEntity<>(roomService.addNewRoom(roomRequestDto), HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/{id}/update")
     public ResponseEntity<?> updateRoom(@PathVariable Long id, @RequestBody RoomUpdateDto roomUpdateDto) {
         return ResponseEntity.ok(roomService.updateRoom(id, roomUpdateDto));
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PatchMapping("/{id}/update")
     public ResponseEntity<?> partialUpdateRoom(@PathVariable Long id, @RequestBody RoomPartialUpdateDto roomUpdateDto) {
         return ResponseEntity.ok(roomService.partialUpdateRoom(id, roomUpdateDto));
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<?> deleteRoom(@PathVariable Long id) {
         roomService.deleteRoom(id);

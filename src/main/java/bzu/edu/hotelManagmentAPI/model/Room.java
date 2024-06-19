@@ -1,6 +1,5 @@
 package bzu.edu.hotelManagmentAPI.model;
 
-import bzu.edu.hotelManagmentAPI.enums.RoomStatusEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,6 +1,7 @@
 package bzu.edu.hotelManagmentAPI.model;
 
 
+import bzu.edu.hotelManagmentAPI.enums.ReservationStatusEnum;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -38,18 +39,22 @@ public class Reservation {
     @Min(value = 1, message = "At least one adult is required to reserve a room")
     private Integer numAdults;
 
-    @Column(name = "num_children") 
+    @Column(name = "num_children")
     private Integer numChildren; //why do we need this??
 
     @ManyToOne()
     @JoinColumn(name = "user_id")
     private UserEntity userEntity;
 
-    
+
     @Nullable //add payment after the reservation is created
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "payment_id")
     private Payment payment;
+    
+    @Column(name = "reservation_status")
+    @Enumerated(EnumType.STRING)
+    private ReservationStatusEnum reservationStatusEnum = ReservationStatusEnum.ONHOLD;
 
     @OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL)
     private List<ReservationRoom> reservationRooms;
@@ -70,8 +75,7 @@ public class Reservation {
         this.checkoutDate = checkoutDate;
         this.numAdults = numAdults;
         this.numChildren = numChildren;
-        this.payment = payment;        
+        this.payment = payment;
         this.userEntity = userEntity;
-
     }
 }

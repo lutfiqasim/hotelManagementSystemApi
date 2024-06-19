@@ -2,6 +2,7 @@ package bzu.edu.hotelManagmentAPI.dto;
 
 import java.time.LocalDate;
 
+import bzu.edu.hotelManagmentAPI.enums.ReservationStatusEnum;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import bzu.edu.hotelManagmentAPI.model.Reservation;
@@ -34,6 +35,16 @@ public class ReservationResponseDto {
 
     @Nullable //null when browsing reservation. Not null when booking
     ReservationPaymentDto payment;
+    private ReservationStatusEnum reservationStatusEnum;
+
+    public ReservationResponseDto(Long id, LocalDate checkinDate, LocalDate checkoutDate, Integer numAdults, Integer numChildren, Long userId) {
+        this.id = id;
+        this.checkinDate = checkinDate;
+        this.checkoutDate = checkoutDate;
+        this.numAdults = numAdults;
+        this.numChildren = numChildren;
+        this.userId = userId;
+    }
 
     public ReservationResponseDto(Long id, LocalDate checkinDate, LocalDate checkoutDate, Integer numAdults, Integer numChildren, Float paymentAmount, Long userId) {
         this.id = id;
@@ -45,7 +56,7 @@ public class ReservationResponseDto {
         this.userId = userId;
     }
 
-    public ReservationResponseDto(Long id, LocalDate checkinDate, LocalDate checkoutDate, Integer numAdults, Integer numChildren, Float paymentAmount, Long userId, ReservationPaymentDto payment) {
+    public ReservationResponseDto(Long id, LocalDate checkinDate, LocalDate checkoutDate, Integer numAdults, Integer numChildren, Float paymentAmount, Long userId, ReservationPaymentDto payment,ReservationStatusEnum reservationStatusEnum) {
         this.id = id;
         this.checkinDate = checkinDate;
         this.checkoutDate = checkoutDate;
@@ -54,6 +65,8 @@ public class ReservationResponseDto {
         this.paymentAmount = paymentAmount;
         this.userId = userId;
         this.payment = payment;
+        this.reservationStatusEnum = reservationStatusEnum;
+        this.payment.setAmount(paymentAmount);
     }
 
     // Getters and setters
@@ -104,14 +117,6 @@ public class ReservationResponseDto {
     public void setPaymentAmount(Float paymentAmount) {
         this.paymentAmount = paymentAmount;
     }
-
-    // public String getPaymentStatus() {
-    //     return paymentStatus;
-    // }
-
-    // public void setPaymentStatus(String paymentStatus) {
-    //     this.paymentStatus = paymentStatus;
-    // }
 
     public Long getUserId() {
         return userId;

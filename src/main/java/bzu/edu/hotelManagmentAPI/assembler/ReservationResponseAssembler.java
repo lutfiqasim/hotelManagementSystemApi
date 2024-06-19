@@ -5,6 +5,7 @@ import bzu.edu.hotelManagmentAPI.controller.ReservationControllerV2;
 import bzu.edu.hotelManagmentAPI.controller.UserController;
 import bzu.edu.hotelManagmentAPI.dto.ReservationPaymentDto;
 import bzu.edu.hotelManagmentAPI.dto.ReservationResponseDto;
+import bzu.edu.hotelManagmentAPI.enums.PaymentStatus;
 import bzu.edu.hotelManagmentAPI.model.Reservation;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
@@ -13,12 +14,15 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ReservationResponseAssembler implements RepresentationModelAssembler<Reservation, EntityModel<ReservationResponseDto>> {
+
     @Override
     public EntityModel<ReservationResponseDto> toModel(Reservation entity) {
         EntityModel<ReservationResponseDto> entityModel = getModel(entity);
         entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getUserById(entity.getUserEntity().getId())).withRel("User"));
-        entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(ReservationControllerV2.class).getUserReservations(entity.getUserEntity().getId())).withSelfRel());
-//        entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(ReservationController.class).g))
+        entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(ReservationController.class).getUserReservations(entity.getUserEntity().getId())).withSelfRel());
+        if (entity.getPayment() != null && entity.getPayment().getPaymentStatus().equals(PaymentStatus.OnHold)) {
+            entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(ReservationController.class).payForReservation(entity.getId())).withRel("payForReservation"));
+        }
         return entityModel;
     }
 
@@ -29,16 +33,20 @@ public class ReservationResponseAssembler implements RepresentationModelAssemble
                 entity.getCheckoutDate(),
                 entity.getNumAdults(),
                 entity.getNumChildren(),
-                entity.getPaymentAmount(),
                 entity.getUserEntity().getId());
-                if(entity.getPayment() != null) {
-                    ReservationPaymentDto paymentDto = new ReservationPaymentDto();
-                    paymentDto.setPaymentMethod(entity.getPayment().getPaymentMethod().name());
-                    paymentDto.setPaymentStatus(entity.getPayment().getPaymentStatus().name());
-                    paymentDto.setAmount(entity.getPayment().getAmount());
-                    paymentDto.setId(entity.getPayment().getId());
-                    dto.setPayment(paymentDto);
-                }
+
+        if (entity.getPayment() != null) {
+            ReservationPaymentDto paymentDto = new ReservationPaymentDto();
+            paymentDto.setId(entity.getPayment().getId());
+            paymentDto.setPaymentMethod(entity.getPayment().getPaymentMethod().name());
+            paymentDto.setPaymentStatus(entity.getPayment().getPaymentStatus().name());
+            if (entity.getReservationRooms() != null) {
+                dto.setPaymentAmount(entity.getPaymentAmount());
+                paymentDto.setAmount(entity.getPaymentAmount());
+            }
+            dto.setPayment(paymentDto);
+//          paymentDto.setPaymentDate(entity.getPayment());
+        }
         return EntityModel.of(dto);
     }
 }

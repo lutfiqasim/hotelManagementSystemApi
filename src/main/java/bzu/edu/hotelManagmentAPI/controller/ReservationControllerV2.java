@@ -1,37 +1,49 @@
 package bzu.edu.hotelManagmentAPI.controller;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import bzu.edu.hotelManagmentAPI.dto.ReservationPaymentDto;
+import bzu.edu.hotelManagmentAPI.dto.ReservationResponseDto;
 import bzu.edu.hotelManagmentAPI.service.ReservationService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 @RestController
-@RequestMapping(value = "/api/reservation", headers = "X-API-Version=2")
+@RequestMapping(value = "/api/reservations", headers = "X-API-Version=2")
+public class ReservationControllerV2 {
+    private final ReservationService reservationService;
 
-public class ReservationControllerV2 extends ReservationController {
-
+    @Autowired
     public ReservationControllerV2(ReservationService reservationService) {
-        super(reservationService);
+        this.reservationService = reservationService;
     }
 
-//    @PostMapping(value = "/api/reservation/user/{userId}", headers = "X-API-Version=2")
-//    public ResponseEntity<?> getAllReservations(@RequestParam(required = false) Integer page, @RequestParam(required = false) Integer size, @RequestParam(required = false) LocalDate time, @RequestParam(required = false) String name, @RequestParam(required = false) Long id) {
-//        if (page == null) {
-//            page = 0;
-//        }
-//        if (size == null) {
-//            size = 20;
-//        }
-//        return ResponseEntity.ok(super.reservationService.getAllReservations(page, size, id, name, time));
-//    }
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping
+    public ResponseEntity<Page<ReservationResponseDto>> getAllReservations(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) LocalDate checkinDate,
+            @RequestParam(required = false) LocalDate checkoutDate,
+            @RequestParam(required = false) Long userId) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ReservationResponseDto> reservations = reservationService.getAllReservations(userId, checkinDate, checkoutDate, pageable);
+        return ResponseEntity.ok(reservations);
+    }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/today")
+    public ResponseEntity<Page<ReservationResponseDto>> getTodayReservations(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        LocalDate today = LocalDate.now();
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ReservationResponseDto> reservations = reservationService.getReservationsByDate(today, pageable);
+        return ResponseEntity.ok(reservations);
+    }
 }
+
