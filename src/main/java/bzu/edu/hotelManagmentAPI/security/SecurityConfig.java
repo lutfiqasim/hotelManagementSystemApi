@@ -66,6 +66,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize.
                                 requestMatchers(WHITE_LIST_URL).permitAll()
                                 .requestMatchers(DELETE, "/api/v1/users/**").hasRole(UserRole.ADMIN.name())
+                                .requestMatchers(HttpMethod.POST, "/api/room-class-features", "/api/features").hasRole(UserRole.ADMIN.name())
 //                        .requestMatchers("/api/v1/users/employees").hasRole(UserRole.ADMIN.name())
 //                                .requestMatchers("/api/v1/users/**").hasRole("CUSTOMER")
                                 .anyRequest().authenticated()
