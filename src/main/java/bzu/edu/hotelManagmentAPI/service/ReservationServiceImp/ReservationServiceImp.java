@@ -51,6 +51,38 @@ public class ReservationServiceImp implements ReservationService {
     }
 
     @Override
+    public EntityModel<ReservationResponseDto> checkInForReservation(Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation with id : " + reservationId + ", is not found"));
+        if (!reservation.getCheckinDate().equals(LocalDate.now())) {
+            reservation.setCheckinDate(LocalDate.now());
+        }
+        reservation.setReservationStatusEnum(ReservationStatusEnum.ONGOING);
+
+        reservationRepository.save(reservation);
+
+        return reservationResponseAssembler.toModel(reservationRepository.save(reservation));
+    }
+
+    @Override
+    public EntityModel<ReservationResponseDto> checkoutForReservation(Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation with id : " + reservationId + ", is not found"));
+
+        // Update reservation status to FINISHED
+        reservation.setReservationStatusEnum(ReservationStatusEnum.FINISHED);
+
+        // Set associated rooms to be available
+        setReservedRoomsToAvailable(reservation.getReservationRooms());
+
+        // Save the updated reservation
+        Reservation updatedReservation = reservationRepository.save(reservation);
+
+        // Return the updated reservation wrapped in an EntityModel
+        return reservationResponseAssembler.toModel(updatedReservation);
+    }
+
+    @Override
     public CollectionModel<EntityModel<ReservationResponseDto>> getUserReservations(Long userId) {
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         SecurityUtils.checkIfSameUserOrAdmin(user);
@@ -300,6 +332,21 @@ public class ReservationServiceImp implements ReservationService {
         return model;
     }
 
+
+    public Page<ReservationResponseDto> getAllReservations(Long userId, LocalDate checkinDate, LocalDate checkoutDate, Pageable pageable) {
+        if (userId != null) {
+            return reservationRepository.findByUserEntityId(userId, pageable).map(this::toReservationResponseDto);
+        } else if (checkinDate != null && checkoutDate != null) {
+            return reservationRepository.findByCheckinDateAndCheckoutDate(checkinDate, checkoutDate, pageable).map(this::toReservationResponseDto);
+        } else {
+            return reservationRepository.findAll(pageable).map(this::toReservationResponseDto);
+        }
+    }
+
+    public Page<ReservationResponseDto> getReservationsByDate(LocalDate date, Pageable pageable) {
+        return reservationRepository.findByCheckinDate(date, pageable).map(this::toReservationResponseDto);
+    }
+
     private Reservation fromRequestToEntity(ReservationRequestDto reservationRequestDto, UserEntity user) {
         Reservation reservation = new Reservation();
         reservation.setCheckinDate(reservationRequestDto.getCheckinDate());
@@ -327,11 +374,6 @@ public class ReservationServiceImp implements ReservationService {
             room.setStatus(roomStatus);
         }
         roomRepository.saveAll(rooms);
-    }
-
-
-    public Page<ReservationResponseDto> getReservationsByDate(LocalDate date, Pageable pageable) {
-        return reservationRepository.findByCheckinDate(date, pageable).map(this::toReservationResponseDto);
     }
 
     private ReservationResponseDto toReservationResponseDto(Reservation reservation) {

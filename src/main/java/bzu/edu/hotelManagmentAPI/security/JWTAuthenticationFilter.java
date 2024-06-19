@@ -34,7 +34,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String token = getJWTFromRequest(request);
 
-        if (StringUtils.hasText(token) && tokenGenerator.validateToken(token)) {
+        if (StringUtils.hasText(token) && !token.isBlank() && tokenGenerator.validateToken(token)) {
             String email = tokenGenerator.getEmailFromJWT(token);
             UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
 

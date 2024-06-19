@@ -18,6 +18,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 public interface ReservationService {
 
+    EntityModel<ReservationResponseDto> checkInForReservation(Long reservationId);
+
+    EntityModel<ReservationResponseDto> checkoutForReservation(Long reservationId);
+
     CollectionModel<EntityModel<ReservationResponseDto>> getUserReservations(Long userId);
 
     CollectionModel<EntityModel<ReservationResponseDto>> getAllReservations(Long id, String name, LocalDate date);
@@ -52,4 +56,6 @@ public interface ReservationService {
     EntityModel<ReservationInvoicesResponse> getReservationInvoice(Long reservationId) throws BadRequestException;
 
     Page<ReservationResponseDto> getReservationsByDate(LocalDate date, Pageable pageable);
+
+    Page<ReservationResponseDto> getAllReservations(Long userId, LocalDate checkinDate, LocalDate checkoutDate, Pageable pageable);
 }

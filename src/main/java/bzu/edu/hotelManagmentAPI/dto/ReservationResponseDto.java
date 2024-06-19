@@ -63,7 +63,7 @@ public class ReservationResponseDto {
         this.roomIds = roomIds;
     }
 
-    public ReservationResponseDto(Long id, LocalDate checkinDate, LocalDate checkoutDate, Integer numAdults, Integer numChildren, Float paymentAmount, Long userId, ReservationPaymentDto payment,ReservationStatusEnum reservationStatusEnum) {
+    public ReservationResponseDto(Long id, LocalDate checkinDate, LocalDate checkoutDate, Integer numAdults, Integer numChildren, Float paymentAmount, Long userId, ReservationPaymentDto payment, ReservationStatusEnum reservationStatusEnum) {
         this.id = id;
         this.checkinDate = checkinDate;
         this.checkoutDate = checkoutDate;
