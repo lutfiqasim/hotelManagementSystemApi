@@ -32,11 +32,13 @@ public interface ReservationService {
 
     EntityModel<ReservationResponseDto> updateReservation(Long id, ReservationUpdateDto reservationUpdateDto) throws BadRequestException;
 
+    EntityModel<ReservationResponseDto> cancelReservation(Long id);
+
     void deleteReservation(Long id);
 
     CollectionModel<EntityModel<ReservationResponseDto>> getUserReservationsOnHold(Long userId);
 
     CollectionModel<EntityModel<ReservationResponseDto>> getUpcomingReservations(Long userId);
 
-    EntityModel<ReservationInvoicesResponse> getReservationInvoice(Long reservationId);
+    EntityModel<ReservationInvoicesResponse> getReservationInvoice(Long reservationId) throws BadRequestException;
 }

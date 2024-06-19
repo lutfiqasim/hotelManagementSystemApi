@@ -40,8 +40,6 @@ public class Payment {
     @Enumerated(EnumType.STRING)
     private PaymentStatus paymentStatus = PaymentStatus.OnHold;
 
-    private Float amount;
-
 
     public Payment(PaymentMethod paymentMethod, PaymentStatus paymentStatus) {
         this.paymentMethod = paymentMethod;

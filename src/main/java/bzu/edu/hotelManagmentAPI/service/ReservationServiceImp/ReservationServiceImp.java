@@ -9,12 +9,12 @@ import bzu.edu.hotelManagmentAPI.dto.ReservationResponseDto;
 import bzu.edu.hotelManagmentAPI.dto.ReservationUpdateDto;
 import bzu.edu.hotelManagmentAPI.enums.PaymentMethod;
 import bzu.edu.hotelManagmentAPI.enums.PaymentStatus;
+import bzu.edu.hotelManagmentAPI.enums.ReservationStatusEnum;
 import bzu.edu.hotelManagmentAPI.enums.RoomStatusEnum;
 import bzu.edu.hotelManagmentAPI.exception.ResourceNotFoundException;
 import bzu.edu.hotelManagmentAPI.model.*;
 import bzu.edu.hotelManagmentAPI.repository.*;
 import bzu.edu.hotelManagmentAPI.security.SecurityUtils;
-import bzu.edu.hotelManagmentAPI.utils.LocalDateFormatter;
 import jakarta.validation.Valid;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -89,7 +90,11 @@ public class ReservationServiceImp implements ReservationService {
         EntityModel<ReservationPaymentDto> reservationPaymentDtoEntityModel = EntityModel.
                 of(mapReservationToReservationPaymentDto(reservation1));
         reservationPaymentDtoEntityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(ReservationController.class).getReservationById(reservation1.getId())).withSelfRel());
-        reservationPaymentDtoEntityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(ReservationController.class).getReservationInvoice(reservation1.getId())).withRel("Invoice"));
+        try {
+            reservationPaymentDtoEntityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(ReservationController.class).getReservationInvoice(reservation1.getId())).withRel("Invoice"));
+        } catch (BadRequestException e) {
+            throw new RuntimeException(e);
+        }
         return reservationPaymentDtoEntityModel;
     }
 
@@ -145,6 +150,9 @@ public class ReservationServiceImp implements ReservationService {
         reserveRoomsIfAvailable(reservationRequestDto.getRoomIds());
 //        payment.setAmount(reservation.getPaymentAmount());
         reservation.setPayment(payment);
+        if (reservationRequestDto.getCheckinDate().equals(LocalDate.now())) {
+            reservation.setReservationStatusEnum(ReservationStatusEnum.ONGOING);
+        }
         Reservation savedReservation = reservationRepository.save(reservation);
         saveReservationRooms(reservationRequestDto.getRoomIds(), reservation);
         return reservationResponseAssembler.toModel(savedReservation);
@@ -169,9 +177,23 @@ public class ReservationServiceImp implements ReservationService {
                 throw new BadRequestException("Invalid Payment Status");
             }
         }
+        if (reservation.getCheckinDate().equals(LocalDate.now()) && reservation.getReservationStatusEnum().equals(ReservationStatusEnum.ONHOLD)) {
+            reservation.setReservationStatusEnum(ReservationStatusEnum.ONGOING);
+        }
 
         Reservation updatedReservation = reservationRepository.save(reservation);
         return reservationResponseAssembler.toModel(updatedReservation);
+    }
+
+    @Override
+    public EntityModel<ReservationResponseDto> cancelReservation(Long id) {
+        Reservation reservation = reservationRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Reservation with id " + id + ", not found"));
+        UserEntity currUser = userRepository.findById(reservation.getUserEntity().getId()).orElseThrow(() -> new UsernameNotFoundException("Reserved user not found"));
+        SecurityUtils.checkIfSameUserOrAdmin(currUser);
+        reservation.setReservationStatusEnum(ReservationStatusEnum.CANCELED);
+        setReservedRoomsToAvailable(reservation.getReservationRooms());
+        Reservation reservation1 = reservationRepository.save(reservation);
+        return reservationResponseAssembler.toModel(reservation1);
     }
 
     @Override
@@ -205,11 +227,20 @@ public class ReservationServiceImp implements ReservationService {
     }
 
     @Override
-    public EntityModel<ReservationInvoicesResponse> getReservationInvoice(Long reservationId) {
+    public EntityModel<ReservationInvoicesResponse> getReservationInvoice(Long reservationId) throws BadRequestException {
+
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Reservation not found"));
+
+        SecurityUtils.checkIfSameUserOrAdmin(reservation.getUserEntity());
+
+        //Methodology: invoice after payment only
+        assert reservation.getPayment() != null;
+        if (!reservation.getPayment().getPaymentStatus().equals(PaymentStatus.Paid)) {
+            throw new AccessDeniedException("Can't get invoice before paying the bell, check the reservation to see basic payment info");
+        }
         ReservationInvoicesResponse reservationInvoicesResponse = new ReservationInvoicesResponse(reservation.getId(), reservation.getCheckinDate(), reservation.getCheckoutDate(), reservation.getNumAdults(), reservation.getNumChildren(), reservation.getPaymentAmount());
-        //TODO: invoice after payment only
+
         EntityModel<ReservationInvoicesResponse> model = EntityModel.of(reservationInvoicesResponse);
         return model;
     }
@@ -241,6 +272,16 @@ public class ReservationServiceImp implements ReservationService {
             room.setStatus(roomStatus);
         }
         roomRepository.saveAll(rooms);
+    }
+
+    private void setReservedRoomsToAvailable(List<ReservationRoom> reservationRooms) {
+        RoomStatus roomStatus = roomStatusRepository.findByStatusName(RoomStatusEnum.AVAILABLE).orElseThrow(() -> new EnumConstantNotPresentException(RoomStatusEnum.class, RoomStatusEnum.AVAILABLE.name()));
+        for (ReservationRoom r :
+                reservationRooms) {
+            Room room = roomRepository.findById(r.getRoom().getId()).orElseThrow(() -> new ResourceNotFoundException("Room with id: " + r.getRoom().getId() + ", not found"));
+            room.setStatus(roomStatus);
+            roomRepository.save(room);
+        }
     }
 
     private void saveReservationRooms(List<Long> roomIds, Reservation reservation) {
