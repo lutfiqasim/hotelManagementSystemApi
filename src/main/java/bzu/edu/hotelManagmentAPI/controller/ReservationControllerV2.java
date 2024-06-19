@@ -27,11 +27,12 @@ public class ReservationControllerV2 {
     public ResponseEntity<Page<ReservationResponseDto>> getAllReservations(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String name,
             @RequestParam(required = false) LocalDate checkinDate,
             @RequestParam(required = false) LocalDate checkoutDate,
             @RequestParam(required = false) Long userId) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<ReservationResponseDto> reservations = reservationService.getAllReservations(userId, checkinDate, checkoutDate, pageable);
+        Page<ReservationResponseDto> reservations = reservationService.getAllReservations(userId, name, checkinDate, checkoutDate, pageable);
         return ResponseEntity.ok(reservations);
     }
 

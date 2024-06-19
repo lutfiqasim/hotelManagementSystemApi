@@ -1,6 +1,10 @@
 package bzu.edu.hotelManagmentAPI.controller;
 
 import bzu.edu.hotelManagmentAPI.dto.RoomResponseDto;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
@@ -15,26 +19,27 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @RequestMapping(value = "/api/rooms", params = "version=2") // query versioning
-public class RoomControllerV2 extends RoomController {
+public class RoomControllerV2 {
 
+    // public RoomControllerV2(RoomService roomService) {
+    //     super(roomService);
+    // }
+
+    protected final RoomService roomService;
+
+    @Autowired
     public RoomControllerV2(RoomService roomService) {
-        super(roomService);
+        this.roomService = roomService;
     }
-
-//    @GetMapping
-//    public ResponseEntity<?> getAllRooms(@RequestParam(value = "floor", required = false) Integer floor, @RequestParam(value = "date", required = false) String date, @RequestParam(value = "size", required = false) Integer size) {
-//        return ResponseEntity.ok(roomService.getAllRooms(floor, size));
-//    }
-
-
-    @GetMapping("/v2")
+    @GetMapping
     public CollectionModel<EntityModel<RoomResponseDto>> getAllRoomsPageable(
             @RequestParam(required = false) Integer floorNo,
             @RequestParam(required = false) String date,
-            @RequestParam(defaultValue = "0") int pageNumber,
-            @RequestParam(defaultValue = "10") int pageSize
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
     ) {
-        return roomService.getAllRoomsPageable(floorNo, pageNumber, pageSize);
+        Pageable pageable = PageRequest.of(page, size);
+        return roomService.getAllRoomsPageable(floorNo, pageable);
     }
 
     @GetMapping("/size/{count}")

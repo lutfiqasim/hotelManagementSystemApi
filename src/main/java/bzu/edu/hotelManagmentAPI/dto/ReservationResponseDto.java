@@ -1,11 +1,13 @@
 package bzu.edu.hotelManagmentAPI.dto;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import bzu.edu.hotelManagmentAPI.enums.ReservationStatusEnum;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import bzu.edu.hotelManagmentAPI.model.Reservation;
+import jakarta.validation.constraints.NotNull;
 
 import org.springframework.lang.Nullable;
 
@@ -27,6 +29,9 @@ public class ReservationResponseDto {
     @JsonProperty("payment_amount")
     private Float paymentAmount;
 
+    @NotNull
+    private List<Long> roomIds;
+
     // @JsonProperty("payment_status")
     // private String paymentStatus;
 
@@ -37,16 +42,17 @@ public class ReservationResponseDto {
     ReservationPaymentDto payment;
     private ReservationStatusEnum reservationStatusEnum;
 
-    public ReservationResponseDto(Long id, LocalDate checkinDate, LocalDate checkoutDate, Integer numAdults, Integer numChildren, Long userId) {
+    public ReservationResponseDto(Long id, LocalDate checkinDate, LocalDate checkoutDate, Integer numAdults, Integer numChildren, Long userId, List<Long> roomIds) {
         this.id = id;
         this.checkinDate = checkinDate;
         this.checkoutDate = checkoutDate;
         this.numAdults = numAdults;
         this.numChildren = numChildren;
         this.userId = userId;
+        this.roomIds = roomIds;
     }
 
-    public ReservationResponseDto(Long id, LocalDate checkinDate, LocalDate checkoutDate, Integer numAdults, Integer numChildren, Float paymentAmount, Long userId) {
+    public ReservationResponseDto(Long id, LocalDate checkinDate, LocalDate checkoutDate, Integer numAdults, Integer numChildren, Float paymentAmount, Long userId, List<Long> roomIds) {
         this.id = id;
         this.checkinDate = checkinDate;
         this.checkoutDate = checkoutDate;
@@ -54,6 +60,7 @@ public class ReservationResponseDto {
         this.numChildren = numChildren;
         this.paymentAmount = paymentAmount;
         this.userId = userId;
+        this.roomIds = roomIds;
     }
 
     public ReservationResponseDto(Long id, LocalDate checkinDate, LocalDate checkoutDate, Integer numAdults, Integer numChildren, Float paymentAmount, Long userId, ReservationPaymentDto payment,ReservationStatusEnum reservationStatusEnum) {
@@ -132,5 +139,13 @@ public class ReservationResponseDto {
 
     public void setPayment(ReservationPaymentDto payment) {
         this.payment = payment;
+    }
+
+    public List<Long> getRoomIds() {
+        return roomIds;
+    }
+
+    public void setRoomIds(List<Long> roomIds) {
+        this.roomIds = roomIds;
     }
 }

@@ -17,15 +17,18 @@ import bzu.edu.hotelManagmentAPI.service.UserService;
 
 @RestController
 @RequestMapping("/api/v2/users")
-public class UserControllerV2 extends UserController {
+public class UserControllerV2 {
+
+
+    protected final UserService userService;
 
     @Autowired
     public UserControllerV2(UserService userService) {
-        super(userService);
+        this.userService = userService;
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<CollectionModel<EntityModel<UserEntityResponse>>> getAllUsers(@RequestParam(required = false) String role) {
         if (role != null && role.equalsIgnoreCase("admin")) {
             return ResponseEntity.ok(userService.getAllAdmins());

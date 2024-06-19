@@ -3,10 +3,6 @@ package bzu.edu.hotelManagmentAPI.service.ReservationServiceImp;
 import bzu.edu.hotelManagmentAPI.assembler.ReservationResponseAssembler;
 import bzu.edu.hotelManagmentAPI.controller.ReservationController;
 import bzu.edu.hotelManagmentAPI.dto.*;
-import bzu.edu.hotelManagmentAPI.dto.ReservationPaymentDto;
-import bzu.edu.hotelManagmentAPI.dto.ReservationRequestDto;
-import bzu.edu.hotelManagmentAPI.dto.ReservationResponseDto;
-import bzu.edu.hotelManagmentAPI.dto.ReservationUpdateDto;
 import bzu.edu.hotelManagmentAPI.enums.PaymentMethod;
 import bzu.edu.hotelManagmentAPI.enums.PaymentStatus;
 import bzu.edu.hotelManagmentAPI.enums.ReservationStatusEnum;
@@ -66,17 +62,38 @@ public class ReservationServiceImp implements ReservationService {
     }
 
     @Override
-    public Page<EntityModel<ReservationResponseDto>> getAllReservations(Long id, String name, LocalDate date, Pageable pageable) {
-        return null;
-    }
-
-
-    @Override
     public CollectionModel<EntityModel<ReservationResponseDto>> getAllReservations(Long id, String name, LocalDate time) {
         SecurityUtils.checkIfAdminAuthority();
         List<EntityModel<ReservationResponseDto>> reservations = reservationRepository.findWithIdNameDate(id, name, time).stream().map(reservationResponseAssembler::toModel).collect(Collectors.toList());
         return CollectionModel.of(reservations);
     }
+    @Override
+    public Page<ReservationResponseDto> getAllReservations(Long userId, String name, LocalDate checkinDate, LocalDate checkoutDate, Pageable pageable) {
+        // if (userId != null) {
+        //     return reservationRepository.findByUserEntityId(userId, pageable).map(this::toReservationResponseDto);
+        // } else if (checkinDate != null && checkoutDate != null) {
+        //     return reservationRepository.findByCheckinDateAndCheckoutDate(checkinDate, checkoutDate, pageable).map(this::toReservationResponseDto);
+        // } else {
+        //     return reservationRepository.findAll(pageable).map(this::toReservationResponseDto);
+        // }
+        return reservationRepository.findWithIdNameDate(userId, name, checkinDate, checkoutDate, pageable).map(this::toReservationResponseDto);
+    }
+
+    @Override
+    public boolean isRoomAvailable(Long roomId, LocalDate checkinDate, LocalDate checkoutDate) {
+        List<Reservation> reservations = reservationRepository.findAll();
+        for (Reservation reservation : reservations) {
+            if ((reservation.getCheckinDate().isBefore(checkinDate) && reservation.getCheckoutDate().isAfter(checkinDate) ) || (reservation.getCheckinDate().isBefore(checkoutDate) && reservation.getCheckoutDate().isAfter(checkoutDate))){
+                for (ReservationRoom reservationRoom : reservation.getReservationRooms()) {
+                    if (reservationRoom.getRoom().getId().equals(roomId)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
 
     @Override
     public EntityModel<ReservationPaymentDto> payForReservation(Long id) {
@@ -98,6 +115,26 @@ public class ReservationServiceImp implements ReservationService {
     }
 
     @Override
+    public EntityModel<ReservationResponseDto> bookRoom(Long roomId, ReservationRequestDto reservationRequestDto) throws UsernameNotFoundException{
+        Reservation reservation = new Reservation();
+        reservation.setCheckinDate(reservationRequestDto.getCheckinDate());
+        reservation.setCheckoutDate(reservationRequestDto.getCheckoutDate());
+        reservation.setNumAdults(reservationRequestDto.getNumAdults());
+        reservation.setNumChildren(reservationRequestDto.getNumChildren());
+        UserEntity user = userRepository.findById(reservationRequestDto.getUserId()).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        reservation.setUserEntity(user);
+        reservation.getPaymentAmount();
+        reservation.setReservationStatusEnum(ReservationStatusEnum.ONHOLD);
+        Room room = roomRepository.findById(roomId).orElseThrow(() -> new ResourceNotFoundException("Room not found"));
+        System.out.println("room id: "+room.getId());   
+        ReservationRoom reservationRoom = new ReservationRoom(reservation, room);
+        reservation.setReservationRooms(List.of(reservationRoom));
+        System.out.println("reservationRoom: "+reservationRoom.getRoom().getId());
+        Reservation savedReservation = reservationRepository.save(reservation);
+        return reservationResponseAssembler.toModel(savedReservation);
+    }
+
+    @Override
     public EntityModel<ReservationResponseDto> getReservationById(Long id) {
         Reservation reservation = reservationRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Reservation not found"));
         SecurityUtils.checkIfSameUserOrAdmin(reservation.getUserEntity());
@@ -107,7 +144,14 @@ public class ReservationServiceImp implements ReservationService {
     @Override
     public EntityModel<ReservationResponseDto> reviewReservation(@Valid ReservationRequestDto reservationRequestDto) throws BadRequestException {
         UserEntity user = userRepository.findById(reservationRequestDto.getUserId()).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        checkRoomsAvailability(reservationRequestDto.getRoomIds());
+        // checkRoomsAvailability(reservationRequestDto.getRoomIds());
+        LocalDate checkinDate = reservationRequestDto.getCheckinDate();
+        LocalDate checkoutDate = reservationRequestDto.getCheckoutDate();
+        for (Long roomId : reservationRequestDto.getRoomIds()) {
+            if (!isRoomAvailable(roomId, checkinDate, checkoutDate)) {
+                throw new BadRequestException("Room is not available for the selected dates");
+            }
+        }
         Reservation reservation = fromRequestToEntity(reservationRequestDto, user);
         EntityModel<ReservationResponseDto> model = reservationResponseAssembler.toModel(reservation);
         model.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(ReservationController.class).addReservation(reservationRequestDto)).withRel("makeReservation"));
@@ -155,6 +199,18 @@ public class ReservationServiceImp implements ReservationService {
         Reservation savedReservation = reservationRepository.save(reservation);
         saveReservationRooms(reservationRequestDto.getRoomIds(), reservation);
         return reservationResponseAssembler.toModel(savedReservation);
+    }
+
+    @Override
+    public EntityModel<ReservationResponseDto> addRoomToReservation(Long id, Long roomId) throws BadRequestException {
+        Reservation reservation = reservationRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Reservation not found"));
+        Room room = roomRepository.findById(roomId).orElseThrow(() -> new ResourceNotFoundException("Room not found"));
+        if(!isRoomAvailable(roomId, reservation.getCheckinDate(), reservation.getCheckoutDate())){
+            throw new BadRequestException("Room is not available for the selected dates");
+        }
+        reservation.getReservationRooms().add(new ReservationRoom(reservation, room));
+        Reservation updatedReservation = reservationRepository.save(reservation);
+        return reservationResponseAssembler.toModel(updatedReservation);
     }
 
 
@@ -273,15 +329,6 @@ public class ReservationServiceImp implements ReservationService {
         roomRepository.saveAll(rooms);
     }
 
-    public Page<ReservationResponseDto> getAllReservations(Long userId, LocalDate checkinDate, LocalDate checkoutDate, Pageable pageable) {
-        if (userId != null) {
-            return reservationRepository.findByUserEntityId(userId, pageable).map(this::toReservationResponseDto);
-        } else if (checkinDate != null && checkoutDate != null) {
-            return reservationRepository.findByCheckinDateAndCheckoutDate(checkinDate, checkoutDate, pageable).map(this::toReservationResponseDto);
-        } else {
-            return reservationRepository.findAll(pageable).map(this::toReservationResponseDto);
-        }
-    }
 
     public Page<ReservationResponseDto> getReservationsByDate(LocalDate date, Pageable pageable) {
         return reservationRepository.findByCheckinDate(date, pageable).map(this::toReservationResponseDto);
@@ -330,6 +377,5 @@ public class ReservationServiceImp implements ReservationService {
         paymentDto.setReservationId(reservation.getId());
         return paymentDto;
     }
-
 
 }

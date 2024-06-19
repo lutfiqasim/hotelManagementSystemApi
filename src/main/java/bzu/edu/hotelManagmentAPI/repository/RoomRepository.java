@@ -15,7 +15,7 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     @Query("SELECT r FROM Room r WHERE r.floor.floorNumber = :floor")
     Page<Room> findByFloorNumber(@Param("floor") Integer floorNo, Pageable pageable);
 
-    Page<Room> findAll(Pageable pageable);
+    // Page<Room> findAll(Pageable pageable);
 
     //    @Query("SELECT r FROM Room r WHERE (:floor is null or r.floor.floorNumber = :floor) AND (:date is null or r.date = :date) AND (:size is null or r.size = :size)")
 //    Page<Room> findAll(@Param("floor") Integer floorNo, @Param("date") LocalDate date, @Param("size") Integer size, Pageable pageable);

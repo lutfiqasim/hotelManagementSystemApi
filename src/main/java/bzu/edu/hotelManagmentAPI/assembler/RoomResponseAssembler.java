@@ -21,7 +21,7 @@ public class RoomResponseAssembler implements RepresentationModelAssembler<Room,
         //self link for now
         entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(RoomController.class)
                 .getRoomById(entity.getId())).withSelfRel());
-        entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(RoomController.class).getAllRooms(1, 10)).withRel("rooms"));
+        entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(RoomController.class).getAllRooms()).withRel("rooms"));
         if (entity.getStatus().getStatusName().name().equals(RoomStatusEnum.AVAILABLE.name())) {
             try {
                 entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(ReservationController.class).addReservation(null)).withRel("reserveRoom").expand(entity.getId()));

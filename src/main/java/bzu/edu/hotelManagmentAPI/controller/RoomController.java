@@ -1,5 +1,7 @@
 package bzu.edu.hotelManagmentAPI.controller;
 
+import java.time.LocalDate;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,10 +15,16 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import bzu.edu.hotelManagmentAPI.dto.ReservationRequestDto;
 import bzu.edu.hotelManagmentAPI.dto.RoomPartialUpdateDto;
 import bzu.edu.hotelManagmentAPI.dto.RoomRequestDto;
 import bzu.edu.hotelManagmentAPI.dto.RoomUpdateDto;
+import bzu.edu.hotelManagmentAPI.enums.RoomClassEnum;
+import bzu.edu.hotelManagmentAPI.model.RoomClass;
+import bzu.edu.hotelManagmentAPI.service.ReservationService;
 import bzu.edu.hotelManagmentAPI.service.RoomService;
 
 @RestController
@@ -24,20 +32,22 @@ import bzu.edu.hotelManagmentAPI.service.RoomService;
 public class RoomController {
 
     protected final RoomService roomService;
+    protected final ReservationService  reservationService;
 
     @Autowired
-    public RoomController(RoomService roomService) {
+    public RoomController(RoomService roomService, ReservationService reservationService) {
         this.roomService = roomService;
+        this.reservationService = reservationService;
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllRooms(@RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size) {
-        return ResponseEntity.ok(roomService.getAllRooms(page, size));
+    public ResponseEntity<?> getAllRooms() {
+        return ResponseEntity.ok(roomService.getAllRooms());
     }
 
     @GetMapping("/available")
-    public ResponseEntity<?> getAvailableRooms() {
-        return ResponseEntity.ok(roomService.getAvailableRooms());
+    public ResponseEntity<?> getAvailableRooms(@RequestParam(required = false) LocalDate checkInDate, @RequestParam(required = false)  LocalDate checkOutDate){  //@RequestParam(required = false) RoomClassEnum roomClassEnum, @RequestParam(required = false) Integer numOfBeds){
+        return ResponseEntity.ok(roomService.getAvailableRooms(checkInDate, checkOutDate));//, roomClassEnum,numOfBeds));
     }
 
     @GetMapping("/{id}")
@@ -50,6 +60,12 @@ public class RoomController {
     public ResponseEntity<?> addNewRoom(@RequestBody RoomRequestDto roomRequestDto) {
         return new ResponseEntity<>(roomService.addNewRoom(roomRequestDto), HttpStatus.CREATED);
     }
+
+    @PostMapping("{roomId}/book")
+    public ResponseEntity<?> bookRoom(@PathVariable Long roomId, @RequestBody ReservationRequestDto reservationRequestDto) {
+        return ResponseEntity.ok(reservationService.bookRoom(roomId,reservationRequestDto));
+    }
+
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/{id}/update")

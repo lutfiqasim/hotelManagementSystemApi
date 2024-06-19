@@ -14,18 +14,21 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 public interface ReservationService {
 
     CollectionModel<EntityModel<ReservationResponseDto>> getUserReservations(Long userId);
 
-    Page<EntityModel<ReservationResponseDto>> getAllReservations(Long id, String name, LocalDate date, Pageable pageable);
-
     CollectionModel<EntityModel<ReservationResponseDto>> getAllReservations(Long id, String name, LocalDate date);
+
+    Page<ReservationResponseDto> getAllReservations(Long userId, String name, LocalDate checkinDate, LocalDate checkoutDate, Pageable pageable);
 
     EntityModel<ReservationPaymentDto> payForReservation(Long id);
 
     EntityModel<ReservationResponseDto> getReservationById(Long id);
+
+    EntityModel<ReservationResponseDto> addRoomToReservation(Long id, Long roomId) throws BadRequestException;
 
     EntityModel<ReservationResponseDto> reviewReservation(@Valid ReservationRequestDto reservationRequestDto) throws BadRequestException;
 
@@ -34,6 +37,11 @@ public interface ReservationService {
     EntityModel<ReservationResponseDto> updateReservation(Long id, ReservationUpdateDto reservationUpdateDto) throws BadRequestException;
 
     EntityModel<ReservationResponseDto> cancelReservation(Long id);
+
+    public EntityModel<ReservationResponseDto> bookRoom(Long id, ReservationRequestDto reservationRequestDto) throws UsernameNotFoundException;
+
+
+    boolean isRoomAvailable(Long roomId, LocalDate checkinDate, LocalDate checkoutDate);
 
     void deleteReservation(Long id);
 
@@ -44,5 +52,4 @@ public interface ReservationService {
     EntityModel<ReservationInvoicesResponse> getReservationInvoice(Long reservationId) throws BadRequestException;
 
     Page<ReservationResponseDto> getReservationsByDate(LocalDate date, Pageable pageable);
-    Page<ReservationResponseDto> getAllReservations(Long userId, LocalDate checkinDate, LocalDate checkoutDate, Pageable pageable);
 }

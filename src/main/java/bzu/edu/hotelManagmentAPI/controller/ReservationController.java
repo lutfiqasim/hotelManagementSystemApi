@@ -24,7 +24,7 @@ public class ReservationController {
     @Autowired
     public ReservationController(ReservationService reservationService) {
         this.reservationService = reservationService;
-    }
+    } 
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<?> getUserReservations(@PathVariable Long userId) {
@@ -37,11 +37,15 @@ public class ReservationController {
         return ResponseEntity.ok(reservationService.getAllReservations(id, name, time));
     }
 
-
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<ReservationResponseDto>> getReservationById(@PathVariable Long id) {
         return ResponseEntity.ok(reservationService.getReservationById(id));
     }
+
+    // @PostMapping
+    // public ResponseEntity<EntityModel<ReservationResponseDto>> reviewReservation(@Valid @RequestBody ReservationRequestDto reservationRequestDto) throws BadRequestException {
+    //     return new ResponseEntity<>(reservationService.reviewReservation(reservationRequestDto), HttpStatus.CREATED);
+    // }
 
     @GetMapping("/{reservationId}/invoice")
     public ResponseEntity<EntityModel<ReservationInvoicesResponse>> getReservationInvoice(@PathVariable Long reservationId) throws BadRequestException {
@@ -52,6 +56,11 @@ public class ReservationController {
     public ResponseEntity<EntityModel<ReservationPaymentDto>> payForReservation(@PathVariable Long id) {
         reservationService.payForReservation(id);
         return ResponseEntity.ok(reservationService.payForReservation(id));
+    }
+
+    @PatchMapping("/{id}/rooms/{roomId}")
+    public ResponseEntity<EntityModel<ReservationResponseDto>> addRoomToReservation(@PathVariable Long id, @PathVariable Long roomId) throws BadRequestException {
+        return ResponseEntity.ok(reservationService.addRoomToReservation(id, roomId));
     }
 
     @PostMapping("")

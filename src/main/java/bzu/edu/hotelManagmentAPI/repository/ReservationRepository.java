@@ -16,11 +16,11 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     // Method to find reservations by user Id
     List<Reservation> findByUserEntity(UserEntity userEntity);
 
-    @Query("SELECT r FROM Reservation r WHERE (:id is null or r.id = :id) AND (:name is null or r.userEntity.firstName = :name) AND (:date is null or r.checkinDate = :date)")
-    Page<Reservation> findWithIdNameDate(Long id, String name, LocalDate date, Pageable pageable);
-
-    @Query("SELECT r FROM Reservation r WHERE (:id is null or r.id = :id) AND (:name is null or r.userEntity.firstName = :name) AND (:date is null or r.checkinDate = :date)")
+    @Query("SELECT r FROM Reservation r WHERE (:id is null or r.userEntity.id = :id) AND (:name is null or r.userEntity.firstName = :name) AND (:date is null or r.checkinDate = :date)")
     List<Reservation> findWithIdNameDate(Long id, String name, LocalDate date);
+
+    @Query("SELECT r FROM Reservation r WHERE (:id is null or r.userEntity.id = :id) AND (:name is null or r.userEntity.firstName = :name) AND (:checkinDate is null or r.checkinDate = :checkinDate) AND (:checkoutDate is null or r.checkoutDate = :checkoutDate)")
+    Page<Reservation> findWithIdNameDate(Long id, String name, LocalDate checkinDate, LocalDate checkoutDate, Pageable pageable);
 
     // find reservations by user Id and payment status
     @Query("SELECT r FROM Reservation r WHERE r.userEntity = :userEntity AND r.payment.paymentStatus = :paymentStatus")

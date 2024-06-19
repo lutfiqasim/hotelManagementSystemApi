@@ -5,6 +5,7 @@ import bzu.edu.hotelManagmentAPI.dto.RoomPartialUpdateDto;
 import bzu.edu.hotelManagmentAPI.dto.RoomRequestDto;
 import bzu.edu.hotelManagmentAPI.dto.RoomResponseDto;
 import bzu.edu.hotelManagmentAPI.dto.RoomUpdateDto;
+import bzu.edu.hotelManagmentAPI.enums.RoomClassEnum;
 import bzu.edu.hotelManagmentAPI.enums.RoomStatusEnum;
 import bzu.edu.hotelManagmentAPI.exception.ResourceNotFoundException;
 import bzu.edu.hotelManagmentAPI.model.Floor;
@@ -16,8 +17,10 @@ import bzu.edu.hotelManagmentAPI.repository.RoomClassRepository;
 import bzu.edu.hotelManagmentAPI.repository.RoomRepository;
 import bzu.edu.hotelManagmentAPI.repository.RoomStatusRepository;
 import bzu.edu.hotelManagmentAPI.security.SecurityUtils;
+import bzu.edu.hotelManagmentAPI.service.ReservationService;
 import bzu.edu.hotelManagmentAPI.service.RoomService;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,35 +40,27 @@ public class RoomServiceImp implements RoomService {
     private final RoomClassRepository roomClassRepository;
     private final RoomStatusRepository roomStatusRepository;
 
+    private final ReservationService reservationService;
+
     @Autowired
-    public RoomServiceImp(RoomRepository roomRepository, RoomResponseAssembler roomResponseAssembler, FloorRepository floorRepository, RoomClassRepository roomClassRepository, RoomStatusRepository roomStatusRepository) {
+    public RoomServiceImp(RoomRepository roomRepository, RoomResponseAssembler roomResponseAssembler, FloorRepository floorRepository, RoomClassRepository roomClassRepository, RoomStatusRepository roomStatusRepository, ReservationService reservationService) {
         this.roomRepository = roomRepository;
         this.roomResponseAssembler = roomResponseAssembler;
         this.floorRepository = floorRepository;
         this.roomClassRepository = roomClassRepository;
         this.roomStatusRepository = roomStatusRepository;
+        this.reservationService = reservationService;
     }
 
     @Override
-    public CollectionModel<EntityModel<RoomResponseDto>> getAllRooms(Integer page, Integer size) {
-        if (page == null) {
-            page = 0;
-        }
-        if (size == null) {
-            size = 20;
-        }
-        Pageable pageable = PageRequest.of(page, size);
-        // throw new UnsupportedOperationException("Contact support");
-        List<EntityModel<RoomResponseDto>> rooms = roomRepository.findAll(pageable).stream().map(roomResponseAssembler::toModel).collect(Collectors.toList());
+    public CollectionModel<EntityModel<RoomResponseDto>> getAllRooms() {
+        List<EntityModel<RoomResponseDto>> rooms = roomRepository.findAll().stream().map(roomResponseAssembler::toModel).collect(Collectors.toList());
 
         return CollectionModel.of(rooms);
     }
 
     @Override
-    public CollectionModel<EntityModel<RoomResponseDto>> getAllRoomsPageable(Integer floorNo, int pageNumber, int pageSize) {
-//        LocalDate localDate = date != null ? LocalDate.parse(date) : null;
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
-
+    public CollectionModel<EntityModel<RoomResponseDto>> getAllRoomsPageable(Integer floorNo, Pageable pageable) {
         Page<Room> roomsPage = roomRepository.findAllPageable(floorNo, pageable);
 
         return roomResponseAssembler.toCollectionModel(roomsPage.getContent());
@@ -81,8 +76,12 @@ public class RoomServiceImp implements RoomService {
 
 
     @Override
-    public CollectionModel<EntityModel<RoomResponseDto>> getAvailableRooms() {
-        return roomResponseAssembler.toCollectionModel(roomRepository.findAvailableRooms());
+    public CollectionModel<EntityModel<RoomResponseDto>> getAvailableRooms(LocalDate checkinDate, LocalDate checkoutDate){//, RoomClassEnum roomClass, Integer numOfBeds) {
+        LocalDate finalInDate = (checkinDate == null) ? LocalDate.now() : checkinDate;
+        LocalDate finalOutDate = (checkoutDate == null) ? LocalDate.now() : checkoutDate;
+        List<Room> rooms = roomRepository.findAll();
+        List<Room> availableRooms = rooms.stream().filter(room -> reservationService.isRoomAvailable(room.getId(), finalInDate , finalOutDate )).collect(Collectors.toList());
+        return roomResponseAssembler.toCollectionModel(availableRooms);
     }
 
     @Override
@@ -219,4 +218,5 @@ public class RoomServiceImp implements RoomService {
 //        }
 //        return CollectionModel.of(roomRepository.findAllBySize(size, pageable).stream().map(roomResponseAssembler::toModel).collect(Collectors.toList()));
 //    }
+
 }
