@@ -13,9 +13,6 @@ public class ReservationPaymentDto {
     @JsonProperty("payment_date")
     private LocalDate paymentDate;
 
-    @JsonProperty("reservation_id")
-    private Long reservationId;
-
     @JsonProperty("payment_method")
     private String paymentMethod;
 

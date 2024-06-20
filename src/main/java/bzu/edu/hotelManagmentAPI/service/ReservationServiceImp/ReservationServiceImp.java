@@ -113,9 +113,15 @@ public class ReservationServiceImp implements ReservationService {
 
     @Override
     public boolean isRoomAvailable(Long roomId, LocalDate checkinDate, LocalDate checkoutDate) {
+        if (checkinDate.isAfter(checkoutDate)) {
+            throw new IllegalArgumentException("Check-in date cannot be after checkout date");
+        }
         List<Reservation> reservations = reservationRepository.findAll();
         for (Reservation reservation : reservations) {
-            if ((reservation.getCheckinDate().isBefore(checkinDate) && reservation.getCheckoutDate().isAfter(checkinDate) ) || (reservation.getCheckinDate().isBefore(checkoutDate) && reservation.getCheckoutDate().isAfter(checkoutDate))){
+            if ((checkinDate.isEqual(reservation.getCheckoutDate()) || checkinDate.isAfter(reservation.getCheckoutDate())) 
+                || (checkoutDate.isEqual(reservation.getCheckinDate()) || checkoutDate.isBefore(reservation.getCheckinDate()))) {
+                continue;
+            } else {
                 for (ReservationRoom reservationRoom : reservation.getReservationRooms()) {
                     if (reservationRoom.getRoom().getId().equals(roomId)) {
                         return false;
@@ -235,6 +241,8 @@ public class ReservationServiceImp implements ReservationService {
 
         reservation.setReservationRooms(reservationRooms);
 
+        payment.setPaymentDate(paymentDto.getPaymentDate());
+
         // Proceed with reservation
         // reserveRoomsIfAvailable(reservationRequestDto.getRoomIds());
 //        payment.setAmount(reservation.getPaymentAmount());
@@ -242,6 +250,7 @@ public class ReservationServiceImp implements ReservationService {
         if (reservationRequestDto.getCheckinDate().equals(LocalDate.now())) {
             reservation.setReservationStatusEnum(ReservationStatusEnum.ONGOING);
         }
+        paymentRepository.save(payment);
         Reservation savedReservation = reservationRepository.save(reservation);
         saveReservationRooms(reservationRequestDto.getRoomIds(), reservation);
         return reservationResponseAssembler.toModel(savedReservation);
@@ -430,7 +439,6 @@ public class ReservationServiceImp implements ReservationService {
             paymentDto.setPaymentStatus(reservation.getPayment().getPaymentStatus().name());
             paymentDto.setAmount(reservation.getPaymentAmount());
         }
-        paymentDto.setReservationId(reservation.getId());
         return paymentDto;
     }
 

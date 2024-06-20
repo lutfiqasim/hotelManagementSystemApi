@@ -33,8 +33,8 @@ public class Payment {
     @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
 
-    // @Column(name = "payment_date")
-    // LocalDate paymentDate;
+    @Column(name = "payment_date")
+    LocalDate paymentDate;
 
     @Column(name = "payment_status")
     @Enumerated(EnumType.STRING)
