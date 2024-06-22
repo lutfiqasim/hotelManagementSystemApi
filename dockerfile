@@ -10,5 +10,8 @@ ARG JAR_FILE=target/hotelManagmentAPI-0.0.1-SNAPSHOT.jar
 # Add the application's jar to the container
 COPY ${JAR_FILE} app.jar
 
+EXPOSE 8080
+
+
 # Run the jar file
 ENTRYPOINT ["java", "-jar", "/app.jar"]

@@ -94,14 +94,13 @@ public class RoomServiceImp implements RoomService {
     @Override
     public EntityModel<RoomResponseDto> addNewRoom(RoomRequestDto roomRequestDto) {
         SecurityUtils.checkIfAdminAuthority();
-        try {
             Floor floor = floorRepository.findByFloorNumber(roomRequestDto.getFloorNumber());
             if (floor == null) {
-                throw new RuntimeException("Floor " + roomRequestDto.getFloorNumber() + " not found, add floor first");
+                throw new IllegalArgumentException("Floor " + roomRequestDto.getFloorNumber() + " not found, add floor first");
             }
-            RoomClass roomClass = roomClassRepository.findByClassName(roomRequestDto.getClassName());
+            RoomClass roomClass = roomClassRepository.findByClassName( RoomClassEnum.valueOf( roomRequestDto.getClassName()));
             if (roomClass == null) {
-                throw new RuntimeException("Room class " + roomRequestDto.getClassName() + " not found, add room class first");
+                throw new IllegalArgumentException("Room class " + roomRequestDto.getClassName() + " not found, add room class first");
             }
             RoomStatus roomStatus;
             if (roomRequestDto.getStatus().equals("AVAILABLE")) {
@@ -113,9 +112,6 @@ public class RoomServiceImp implements RoomService {
             }
             Room room = new Room(floor, roomClass, roomStatus, roomRequestDto.getRoomNumber());
             return roomResponseAssembler.toModel(roomRepository.save(room));
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to add new room!");
-        }
     }
 
     @Override
@@ -134,7 +130,7 @@ public class RoomServiceImp implements RoomService {
                     throw new RuntimeException("Floor " + roomUpdateDto.getFloorNumber() + " not found, add floor first");
                 }
                 room.setFloor(floor);
-                RoomClass roomClass = roomClassRepository.findByClassName(roomUpdateDto.getClassName());
+                RoomClass roomClass = roomClassRepository.findByClassName( RoomClassEnum.valueOf( roomUpdateDto.getClassName()));
                 if (roomClass == null) {
                     throw new RuntimeException("Room class " + roomUpdateDto.getClassName() + " not found, add room class first");
                 }
@@ -172,7 +168,7 @@ public class RoomServiceImp implements RoomService {
                 room.setFloor(floor);
             }
             if (roomPartialUpdateDto.getNumBeds() != null) {
-                RoomClass roomClass = roomClassRepository.findByClassName(roomPartialUpdateDto.getClassName());
+                RoomClass roomClass = roomClassRepository.findByClassName( RoomClassEnum.valueOf( roomPartialUpdateDto.getClassName()));
                 if (roomClass == null) {
                     throw new RuntimeException("Room class " + roomPartialUpdateDto.getClassName() + " not found, add room class first");
                 }
