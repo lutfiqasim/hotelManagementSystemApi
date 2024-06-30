@@ -38,9 +38,13 @@ public class ReservationResponseDto {
     @JsonProperty("user_id")
     private Long userId;
 
+    @Nullable
+    private String reservationStatus;
+
+
     @Nullable //null when browsing reservation. Not null when booking
     ReservationPaymentDto payment;
-    private ReservationStatusEnum reservationStatusEnum;
+    // private ReservationStatusEnum reservationStatusEnum;
 
     public ReservationResponseDto(Long id, LocalDate checkinDate, LocalDate checkoutDate, Integer numAdults, Integer numChildren, Long userId, List<Long> roomIds) {
         this.id = id;
@@ -50,6 +54,7 @@ public class ReservationResponseDto {
         this.numChildren = numChildren;
         this.userId = userId;
         this.roomIds = roomIds;
+
     }
 
     public ReservationResponseDto(Long id, LocalDate checkinDate, LocalDate checkoutDate, Integer numAdults, Integer numChildren, Float paymentAmount, Long userId, List<Long> roomIds) {
@@ -72,7 +77,7 @@ public class ReservationResponseDto {
         this.paymentAmount = paymentAmount;
         this.userId = userId;
         this.payment = payment;
-        this.reservationStatusEnum = reservationStatusEnum;
+        this.reservationStatus = reservationStatusEnum.name();
         this.payment.setAmount(paymentAmount);
     }
 
@@ -147,5 +152,13 @@ public class ReservationResponseDto {
 
     public void setRoomIds(List<Long> roomIds) {
         this.roomIds = roomIds;
+    }
+
+    public String getReservationStatus() {
+        return reservationStatus;
+    }
+
+    public void setReservationStatus(String reservationStatus) {
+        this.reservationStatus = reservationStatus;
     }
 }

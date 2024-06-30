@@ -94,6 +94,10 @@ public class ReservationController {
     public ResponseEntity<EntityModel<ReservationResponseDto>> checkInForExistingReservation(@PathVariable Long id) {
         return ResponseEntity.ok(reservationService.checkInForReservation(id));
     }
+    @PatchMapping("/{id}/checkOut")
+    public ResponseEntity<EntityModel<ReservationResponseDto>> checkOutForExistingReservation(@PathVariable Long id) {
+        return ResponseEntity.ok(reservationService.checkoutForReservation(id));
+    }
 
     @GetMapping("users/{userId}/upcoming")
     public ResponseEntity<CollectionModel<EntityModel<ReservationResponseDto>>> getUpcomingReservations(@PathVariable Long userId) {

@@ -35,7 +35,6 @@ public class ReservationResponseAssembler implements RepresentationModelAssemble
                 entity.getNumChildren(),
                 entity.getUserEntity().getId(),
                 entity.getReservationRooms().stream().map(reservationRoom -> reservationRoom.getRoom().getId()).toList());
-
         if (entity.getPayment() != null) {
             ReservationPaymentDto paymentDto = new ReservationPaymentDto();
             paymentDto.setId(entity.getPayment().getId());
@@ -45,6 +44,7 @@ public class ReservationResponseAssembler implements RepresentationModelAssemble
                 dto.setPaymentAmount(entity.getPaymentAmount());
                 paymentDto.setAmount(entity.getPaymentAmount());
             }
+            dto.setReservationStatus(entity.getReservationStatusEnum().name());
             dto.setPayment(paymentDto);
 //          paymentDto.setPaymentDate(entity.getPayment());
         }
